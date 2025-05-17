@@ -32,7 +32,7 @@ export const Layout: React.FC<{children: React.ReactNode}> = ({children}) => {
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div className="flex bg-indigo-50">
+      <div className="flex bg-[#f2f4f6]">
         <Sidebar user={user ?? null} router={router} selected={pathname} loading={loading} /> 
         <div className="w-full transition-all bg-[#f2f4f6]">
           {children}
@@ -184,7 +184,7 @@ const ToggleClose: React.FC<{open: boolean, setOpen: React.Dispatch<React.SetSta
     <motion.button
       layout
       onClick={() => setOpen((pv) => !pv)}
-      className="absolute bottom-0 left-0 right-0 border-t border-slate-300 transition-colors hover:bg-slate-100"
+      className="absolute bottom-0 left-0 right-0 border-t border-slate-300 transition-colors hover:bg-slate-100 cursor-pointer"
     >
       <div className="flex items-center p-2">
         <motion.div

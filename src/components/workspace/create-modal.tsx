@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../..
 import { Input } from "../../components/ui/input";
 import { Textarea } from "../../components/ui/textarea"; 
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "../../components/ui/form"; 
-import { type Workspace, type TicketGroup } from "../../types";
+import { type Workspace, type TicketGroupRef } from "../../types";
 import { ChevronRight, Trash2, ChevronLeft, SaveAllIcon, Loader2 } from "lucide-react";
 import { api } from "~/utils/api";
 import { toast } from "sonner";
@@ -16,7 +16,7 @@ import { toast } from "sonner";
 const workspaceSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   description: z.string().min(5, { message: "Description must be at least 5 characters." }),
-  ticketGroups: z.array(z.any())
+  ticketGroupsRef: z.array(z.any())
 });
 
 const ticketGroupSchema = z.object({
@@ -34,7 +34,8 @@ export function WorkspaceCreator({triggerClose}: {triggerClose: () => void;}) {
     createdAt: Date.now(),
     updatedAt: Date.now(),
     ownerId: "current-user-id", 
-    ticketGroups: [],
+    ticketGroupsRef: [],
+    ownerName: "current-user-name",
   });
   const [currentTicketGroupIndex, setCurrentTicketGroupIndex] = useState<number | null>(null);  
 
@@ -45,7 +46,7 @@ export function WorkspaceCreator({triggerClose}: {triggerClose: () => void;}) {
     defaultValues: {
       name: workspace.name,
       description: workspace.description,
-      ticketGroups: workspace.ticketGroups,
+      ticketGroupsRef: workspace.ticketGroupsRef,
     },
   });
  
@@ -69,32 +70,27 @@ export function WorkspaceCreator({triggerClose}: {triggerClose: () => void;}) {
   }
  
   function onTicketGroupSubmit(name: string, description: string) {
-    const newTicketGroup: TicketGroup = {
+    const newTicketGroup: TicketGroupRef = {
       id: uuidv4(),
       name: name,
-      description: description,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-      tickets: [],
+      description: description,  
     };
 
     if (currentTicketGroupIndex !== null) { 
       setWorkspace((prev) => {
-        const updatedTicketGroups = [...(prev?.ticketGroups ?? [])];
+        const updatedTicketGroups = [...(prev?.ticketGroupsRef ?? [])];
         updatedTicketGroups[currentTicketGroupIndex] = {
           ...updatedTicketGroups[currentTicketGroupIndex]!,
           name: name,
-          description: description, 
-          updatedAt: Date.now(),
+          description: description,  
         };
-        return { ...prev, ticketGroups: updatedTicketGroups, updatedAt: Date.now() };
+        return { ...prev, ticketGroupsRef: updatedTicketGroups, updatedAt: Date.now() };
       });
       setCurrentTicketGroupIndex(null);
     } else { 
       setWorkspace((prev) => ({
         ...prev,
-        ticketGroups: [...prev?.ticketGroups ?? [], newTicketGroup],
-        updatedAt: Date.now(),
+        ticketGroupsRef: [...prev?.ticketGroupsRef ?? [], newTicketGroup], 
       }));
     }
 
@@ -105,7 +101,7 @@ export function WorkspaceCreator({triggerClose}: {triggerClose: () => void;}) {
   }
   
   function editTicketGroup(index: number) {
-    const ticketGroup = workspace?.ticketGroups?.[index];
+    const ticketGroup = workspace?.ticketGroupsRef?.[index];
     ticketGroupForm.reset({
       name: ticketGroup!.name,
       description: ticketGroup!.description, 
@@ -115,9 +111,9 @@ export function WorkspaceCreator({triggerClose}: {triggerClose: () => void;}) {
  
   function deleteTicketGroup(index: number) {
     setWorkspace((prev) => {
-      const updatedTicketGroups = [...prev.ticketGroups ?? []];
+      const updatedTicketGroups = [...prev.ticketGroupsRef ?? []];
       updatedTicketGroups.splice(index, 1);
-      return { ...prev, ticketGroups: updatedTicketGroups, updatedAt: Date.now() };
+      return { ...prev, ticketGroupsRef: updatedTicketGroups, updatedAt: Date.now() };
     });
   } 
  
@@ -134,12 +130,13 @@ export function WorkspaceCreator({triggerClose}: {triggerClose: () => void;}) {
         createdAt: Date.now(),
         updatedAt: Date.now(),
         ownerId: "current-user-id", 
-        ticketGroups: [],
+        ticketGroupsRef: [],
+        ownerName: "current-user-name",
       });
       workspaceForm.reset({
         name: "",
         description: "",
-        ticketGroups: [],
+        ticketGroupsRef: [],
       });
       ticketGroupForm.reset({
         name: "",
@@ -154,7 +151,7 @@ export function WorkspaceCreator({triggerClose}: {triggerClose: () => void;}) {
 
   return (
     <div className="space-y-">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-center">
         <div className="flex items-center space-x-2 my-2">
           <div
             className={`flex h-8 w-8 items-center justify-center rounded-full ${
@@ -174,8 +171,7 @@ export function WorkspaceCreator({triggerClose}: {triggerClose: () => void;}) {
             2
           </div> 
         </div> 
-      </div>
-
+      </div> 
       <div className="">
         <div className={"space-y-6 md:col-span-5"}> 
           {step === 1 && (
@@ -297,16 +293,15 @@ export function WorkspaceCreator({triggerClose}: {triggerClose: () => void;}) {
                     </div>
                   </Form>
                 </CardContent>
-              </Card> 
-
-              {workspace?.ticketGroups?.length ? (
+              </Card>  
+              {workspace?.ticketGroupsRef?.length ? (
                 <Card>
                   <CardHeader>
                     <CardTitle>Existing Ticket Groups</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      {workspace?.ticketGroups?.map((group, index) => (
+                      {workspace?.ticketGroupsRef?.map((group, index) => (
                         <div key={group.id} className="flex items-center justify-between rounded-lg border p-4">
                           <div>
                             <h3 className="text-lg font-medium">{group.name}</h3>
@@ -340,8 +335,7 @@ export function WorkspaceCreator({triggerClose}: {triggerClose: () => void;}) {
                   </CardContent>
                 </Card>
               ) : null}
-
-              {(workspace?.ticketGroups?.length ?? 0) !== 0 && (
+              {(workspace?.ticketGroupsRef?.length ?? 0) !== 0 && (
                 <Card>
                   <CardContent className="pt-6">
                     <div className="flex justify-between">
@@ -349,8 +343,8 @@ export function WorkspaceCreator({triggerClose}: {triggerClose: () => void;}) {
                         <ChevronLeft className="mr-2 h-4 w-4" />
                         Back
                       </Button> 
-                      <Button variant="outline" onClick={handleSubmit}>
-                        { saveWorkspace.isPending ?  <Loader2 className="animate-spin h-4 w-4" /> : <><SaveAllIcon className="mr-2 h-4 w-4" /> Save </>}
+                      <Button onClick={handleSubmit}>
+                        { saveWorkspace.isPending ?  <Loader2 className="animate-spin h-4 w-4" /> : <><SaveAllIcon className="mr-2 h-4 w-4" /> Save </> }
                       </Button> 
                     </div>
                   </CardContent>
@@ -358,9 +352,7 @@ export function WorkspaceCreator({triggerClose}: {triggerClose: () => void;}) {
               )}
             </div>
           )}
-  
         </div>
-  
       </div>
     </div>
   );
