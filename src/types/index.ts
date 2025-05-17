@@ -11,9 +11,12 @@ export interface Workspace {
     createdAt: number;
     updatedAt: number;
     ownerId: string;
-    ticketGroups?: TicketGroup[];
+    ownerName: string;
+    ticketGroups?:TicketGroup[];
+    ticketGroupsRef?: TicketGroupRef[];
 }
 
+export type TicketGroupRef =  Pick<TicketGroup, "id" | "name" | "description">;
 export interface TicketGroup {
     id: string; 
     name: string; 
@@ -23,6 +26,7 @@ export interface TicketGroup {
     tickets: Ticket[];
 }
 
+export type TicketRef = Pick<TicketGroup, "id" | "name" | "description">;
 export interface Ticket {
     id: string; 
     title: string; 

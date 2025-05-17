@@ -1,4 +1,1 @@
-## Nextjs, Firebase, Tailwind, TRPC and Stripe Starter
-
-
-
+## Manage your daily tasks
