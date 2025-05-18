@@ -1,8 +1,8 @@
 import { Grid2X2, List, Loader2, Plus } from "lucide-react";
-import { Button } from "../../../components/ui/button";  
+import { Button } from "~/components/ui/button";  
 import { TicketGroupCreator } from "~/components/workspace/create-ticketgroup";
 import { useEffect, useState } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../../../components/ui/dialog"; 
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "~/components/ui/dialog"; 
 import { api } from "~/utils/api";
 import type { Workspace } from "~/types";
 import { useRouter } from "next/router"; 
@@ -113,7 +113,7 @@ export default function Workspaces() {
                     createdAt: ticketGroup.createdAt,
                     updatedAt: ticketGroup.updatedAt,
                   }} onClickHandler={async () => {
-                    await router.push(`/dashboard/workspaces/${workspace.id}/ticket-groups/${ticketGroup.id}`);
+                    await router.push(`/dashboard/workspaces/ticket-groups/${ticketGroup.id}?wpId=${workspace.id}`);
                   }} />
                 ))}
               </div>
@@ -129,7 +129,7 @@ export default function Workspaces() {
                   };
                 }) ?? []} 
                 onClickHandler={async (id) => {
-                  await router.push(`/dashboard/workspaces/${workspace.id}/ticket-groups/${id}`);
+                  await router.push(`/dashboard/workspaces/ticket-groups/${id}?wpId=${workspace.id}`);
                 }}
                 />
               </div>
