@@ -2,6 +2,7 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import type { TicketGroup, Workspace } from "~/types"; 
 import { firestore } from "firebase-admin";
+import { get } from "http";
 
 export const ticketSchema = z.object({
   id: z.string(),
@@ -204,5 +205,26 @@ export const workspaceRouter = createTRPCRouter({
         }, { merge: true });
 
       return true; 
+    }),
+  findTicketGroupBId: protectedProcedure
+    .input(z.object({ workspaceId: z.string(), ticketGroupId: z.string() }))  
+    .mutation(async ({ ctx, input }) => {
+      const db = ctx.db;
+      const user = ctx.session.user;
+
+      if (!user) {
+        throw new Error("User not found");
+      }
+
+      const ticketGroups = await db
+        .collection("users")
+        .doc(user?.uid)
+        .collection("workspaces")
+        .doc(input.workspaceId)
+        .collection("ticketGroups")
+        .doc(input.ticketGroupId)
+        .get();
+
+      return ticketGroups.data() as TicketGroup;
     }),
 });
