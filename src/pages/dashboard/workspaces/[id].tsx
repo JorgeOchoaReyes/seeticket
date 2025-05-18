@@ -1,11 +1,13 @@
 import { Grid2X2, List, Loader2, Plus } from "lucide-react";
 import { Button } from "../../../components/ui/button";  
-import { WorkspaceCreator } from "~/components/workspace/create-modal";
+import { TicketGroupCreator } from "~/components/workspace/create-ticketgroup";
 import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../../../components/ui/dialog"; 
 import { api } from "~/utils/api";
 import type { Workspace } from "~/types";
 import { useRouter } from "next/router"; 
+import { WorkspaceCard } from "~/components/workspace/card";
+import { WorkspaceTable } from "~/components/workspace/table"; 
 
 export default function Workspaces() {
   const router = useRouter();
@@ -15,24 +17,27 @@ export default function Workspaces() {
   const [workspace, setWorkspace] = useState<Workspace | null>(null);
   const [openCreateWorkspace, setOpenCreateWorkspace] = useState(false);
 
-  const getWorksapce = api.workspace.findWorkspaceById.useQuery({
-    id: id,
-  });
+  const getWorksapce = api.workspace.findWorkspaceById.useMutation(); ;
 
   useEffect(() => {
-    if (getWorksapce.data) {
-      setWorkspace(getWorksapce.data);
+    if (id) {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      (async () => {
+        const res = await getWorksapce.mutateAsync({ id });
+        if (res) {
+          setWorkspace(res);
+        }
+      })(); 
     }
-  }, [getWorksapce.data]);
+  }, [id]);
 
-  if(getWorksapce.isLoading) {
+  if(getWorksapce.isPending) {
     return (
       <div className="flex flex-col items-center justify-center h-full">
         <Loader2 className="h-10 w-10 animate-spin" />
       </div>
     );
   }
-
 
   return (
     <div className="flex flex-col w-full">
@@ -67,41 +72,66 @@ export default function Workspaces() {
                 Create a new workspace to get started.
                 </DialogDescription>
               </DialogHeader> 
-              <WorkspaceCreator triggerClose={
-                async () => { 
-                  await getWorksapce.refetch();
-                  setOpenCreateWorkspace(false);
-                }
-              } /> 
+              <TicketGroupCreator 
+                workspaceId={workspace?.id ?? ""}
+                triggerClose={
+                  async () => { 
+                    const res = await getWorksapce.mutateAsync({ id });
+                    if (res) {
+                      setWorkspace(res);
+                    }
+                    setOpenCreateWorkspace(false);
+                  }
+                } /> 
             </div> 
           </DialogContent>
         </Dialog> 
       </div>
       <div className="flex flex-col items-center justify-center"> 
         {
-          getWorksapce.isLoading ? (
+          getWorksapce.isPending ? (
             <Loader2 className="h-10 w-10 animate-spin" />
           ) : null
         }
         {
-          (workspace && !getWorksapce.isLoading) ? (
+          (workspace?.ticketGroups?.length === 0 && !getWorksapce.isPending) ? (
             <div className="flex flex-col items-center justify-center h-full">
-              <h2 className="text-2xl font-bold">No Workspaces Found</h2>
-              <p className="text-gray-500">Create a new workspace to get started.</p>
+              <h2 className="text-2xl font-bold">No Ticket Groups Found</h2>
+              <p className="text-gray-500">Create a new ticket groups to get started.</p>
             </div>
           ) : null
         }
         {
-          workspace && getWorksapce.isLoading === false ? <>
+          workspace && getWorksapce.isPending === false ? <>
             {viewMode === "card" ? (
               <div className="flex flex-wrap w-[97%] flex-row items-start gap-6">
-                {/* {workspaces.map((workspace) => (
-                  <WorkspaceCard key={workspace.id} workspace={workspace} />
-                ))} */}
+                {workspace.ticketGroups?.map((ticketGroup) => (
+                  <WorkspaceCard key={ticketGroup.id} workspace={{
+                    id: ticketGroup.id,
+                    name: ticketGroup.name,
+                    description: ticketGroup.description,
+                    createdAt: ticketGroup.createdAt,
+                    updatedAt: ticketGroup.updatedAt,
+                  }} onClickHandler={async () => {
+                    await router.push(`/dashboard/workspaces/${workspace.id}/ticket-groups/${ticketGroup.id}`);
+                  }} />
+                ))}
               </div>
             ) : (
               <div className="flex w-[97%] bg-white">
-                {/* <WorkspaceTable workspaces={workspaces} /> */}
+                <WorkspaceTable workspaces={workspace.ticketGroups?.map((w) => {
+                  return {
+                    id: w.id,
+                    name: w.name,
+                    description: w.description,
+                    createdAt: w.createdAt,
+                    updatedAt: w.updatedAt,
+                  };
+                }) ?? []} 
+                onClickHandler={async (id) => {
+                  await router.push(`/dashboard/workspaces/${workspace.id}/ticket-groups/${id}`);
+                }}
+                />
               </div>
             )} 
           </> : null
