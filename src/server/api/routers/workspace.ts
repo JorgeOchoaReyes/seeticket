@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import type { TicketGroup, Workspace } from "~/types";
+import type { TicketGroup, Workspace } from "~/types"; 
+import { firestore } from "firebase-admin";
 
 export const ticketSchema = z.object({
   id: z.string(),
@@ -123,7 +124,7 @@ export const workspaceRouter = createTRPCRouter({
     }),
   findWorkspaceById: protectedProcedure
     .input(z.object({ id: z.string() }))
-    .query(async ({ ctx, input }) => {
+    .mutation(async ({ ctx, input }) => {
       const db = ctx.db;
       const user = ctx.session.user;
 
@@ -156,5 +157,52 @@ export const workspaceRouter = createTRPCRouter({
         ticketGroups: ticketGroups,
       } as Workspace;
       
+    }),
+  addTicketGroup: protectedProcedure
+    .input(z.object({ workspaceId: z.string(), ticketGroupRef: z.array(ticketGroupRefSchema) }))
+    .mutation(async ({ ctx, input }) => {
+      const db = ctx.db;
+      const user = ctx.session.user;
+
+      if (!user) {
+        throw new Error("User not found");
+      }
+
+      await Promise.all(
+        input.ticketGroupRef.map(async (ticketGroupr) => {
+          await db
+            .collection("users")
+            .doc(user?.uid)
+            .collection("workspaces")
+            .doc(input.workspaceId)
+            .collection("ticketGroups")
+            .doc(ticketGroupr.id)
+            .set({
+              ...ticketGroupr,
+              createdAt: Date.now(),
+              updatedAt: Date.now(),
+            });
+        })
+      ); 
+      const existinsgWorksapaceTicketGroups = await db
+        .collection("users")
+        .doc(user?.uid)
+        .collection("workspaces")
+        .doc(input.workspaceId)
+        .get();
+      const workspace = existinsgWorksapaceTicketGroups.data() as Workspace;
+
+      await db
+        .collection("users")
+        .doc(user?.uid)
+        .collection("workspaces")
+        .doc(input.workspaceId)
+        .set({
+          ...workspace,
+          ticketGroupsRef: [...(workspace.ticketGroupsRef ?? []), ...input.ticketGroupRef],
+          updatedAt: Date.now(),
+        }, { merge: true });
+
+      return true; 
     }),
 });

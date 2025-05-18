@@ -1,9 +1,15 @@
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { formatDistanceToNow } from "date-fns";
 import type { Workspace } from "~/types";
 
 interface WorkspaceTableProps {
-  workspaces: Workspace[]
+  workspaces: {
+    id: string
+    name: string
+    description: string
+    createdAt: number
+    updatedAt: number 
+  }[]
   onClickHandler: (id: string) => Promise<void>   
 }
 
@@ -26,8 +32,7 @@ export function WorkspaceTable({ workspaces, onClickHandler }: WorkspaceTablePro
               <TableCell className="font-medium">{workspace.name}</TableCell>
               <TableCell className="max-w-xs truncate">{workspace.description}</TableCell>
               <TableCell>{formatDistanceToNow(new Date(workspace.createdAt), { addSuffix: true })}</TableCell>
-              <TableCell>{formatDistanceToNow(new Date(workspace.updatedAt), { addSuffix: true })}</TableCell>
-              <TableCell>{workspace.ownerId}</TableCell>
+              <TableCell>{formatDistanceToNow(new Date(workspace.updatedAt), { addSuffix: true })}</TableCell> 
             </TableRow>
           ))}
         </TableBody>

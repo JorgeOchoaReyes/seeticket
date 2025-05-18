@@ -1,10 +1,15 @@
-import { Clock, User } from "lucide-react";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../../components/ui/card";
-import { formatDistanceToNow } from "date-fns";
-import type { Workspace } from "~/types";
+import { Clock } from "lucide-react";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card";
+import { formatDistanceToNow } from "date-fns"; 
 
 interface WorkspaceCardProps {
-  workspace: Workspace
+  workspace: {
+    id: string;
+    name: string;
+    description: string;
+    createdAt: number;
+    updatedAt: number; 
+  };
   onClickHandler: (id: string) => Promise<void>
 }
 

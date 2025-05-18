@@ -154,15 +154,14 @@ const TitleSection: React.FC<{open: boolean, user: User | null, loading: boolean
             >
               {
                 loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <>
-                  <span className="block text-xs font-semibold">{user?.displayName ?? "Brewmaster"}</span>
+                  <span className="block text-xs font-semibold">{user?.displayName ?? "SeeTicket"}</span>
                   <span className="block text-xs text-slate-500">{user?.email}</span>
                 </>
               }
 
             </motion.div>
           )}
-        </div>
-        {open && <FiChevronDown className="mr-2" />}
+        </div> 
       </div>
     </div>
   );

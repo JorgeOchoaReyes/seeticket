@@ -1,10 +1,10 @@
 import { Grid2X2, List, Loader2, Plus } from "lucide-react";
 import { Button } from "../../../components/ui/button";  
-import { WorkspaceCreator } from "~/components/workspace/create-modal";
+import { WorkspaceCreator } from "~/components/workspace/create-workspace";
 import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../../../components/ui/dialog";
-import { WorkspaceTable } from "~/components/workspace/workspace-table";
-import { WorkspaceCard } from "~/components/workspace/workspace-card"; 
+import { WorkspaceTable } from "~/components/workspace/table";
+import { WorkspaceCard } from "~/components/workspace/card"; 
 import { api } from "~/utils/api";
 import type { Workspace } from "~/types";
 import { useRouter } from "next/router";
