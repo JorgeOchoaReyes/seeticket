@@ -6,6 +6,7 @@ import { api } from "~/utils/api";
 import type { TicketGroup } from "~/types";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "~/components/ui/dialog";  
 import { TicketGroupCreator } from "~/components/workspace/create-ticketgroup";
+import { TicketGenrator } from "~/components/workspace/create-ticket";
 
 export default function TicketGroupPage() {
   const router = useRouter();
@@ -66,22 +67,21 @@ export default function TicketGroupPage() {
           </Button>
         </div> 
         <Dialog open={openAddTickets} onOpenChange={setOpenAddTickets}> 
-          <Button onClick={() => setOpenAddTickets(true)} variant="outline"> <Plus /> Add Ticket Group</Button> 
+          <Button onClick={() => setOpenAddTickets(true)} variant="outline"> <Plus /> Add Tickets </Button> 
           <DialogContent className="w-full">
             <div className="overflow-auto max-h-[80vh] w-full">
               <DialogHeader>
-                <DialogTitle>New Workspace</DialogTitle>
+                <DialogTitle>New Tickets</DialogTitle>
                 <DialogDescription> 
-                Create a new workspace to get started.
+                Create a new ticket.
                 </DialogDescription>
               </DialogHeader> 
-              <TicketGroupCreator 
+              <TicketGenrator 
                 workspaceId={workspaceId}
-                triggerClose={
-                  async () => {  
-                    setOpenAddTickets(false);
-                  }
-                } /> 
+                ticketGroupId={ticketGroup?.id ?? ""}
+                triggerClose={async () => {  
+                  setOpenAddTickets(false);
+                }} /> 
             </div> 
           </DialogContent>
         </Dialog> 

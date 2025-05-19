@@ -3,21 +3,14 @@ import { useRouter } from "next/router";
 import { getAuth, updateProfile, sendPasswordResetEmail, signOut, onAuthStateChanged } from "firebase/auth";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
-import { api } from "~/utils/api";
-import { Loader2 } from "lucide-react"; 
+import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card"; 
 
 export default function SettingsPage() {
   const auth = getAuth();
   const router = useRouter();
   const [user, setUser] = useState(auth.currentUser);
   const [name, setName] = useState("");
-  const [message, setMessage] = useState("");
-  const [squareCredentials, setSquareCredentials] = useState({
-    appId: "",
-    appSecret: "",
-  });
-  const [isSquareOauth, setIsSquareOauth] = useState(false); 
+  const [message, setMessage] = useState(""); 
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
@@ -41,6 +34,7 @@ export default function SettingsPage() {
       setMessage("Name updated successfully!");
       await user.reload(); 
     } catch (_error) {
+      console.log("Error updating name:", _error);
       setMessage("Failed to update name. Please try again.");
     }
   };
@@ -54,6 +48,7 @@ export default function SettingsPage() {
       await sendPasswordResetEmail(auth, user.email);
       setMessage("Password reset email sent!");
     } catch (_error) {
+      console.log("Error sending password reset email:", _error);
       setMessage("Failed to send password reset email. Please try again.");
     }
   };
@@ -65,6 +60,7 @@ export default function SettingsPage() {
         console.error("Failed to redirect to login page:", err);
       });
     } catch (error) {
+      console.error("Error signing out:", error);
       setMessage("Failed to sign out. Please try again.");
     }
   };

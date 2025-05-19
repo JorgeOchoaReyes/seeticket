@@ -31,10 +31,14 @@ export interface Ticket {
     id: string; 
     title: string; 
     description: string;
-    duetime: number;
+
+    duetime?: string;
+    dueDate?: number; 
+    weeklySchedule?: string[]; 
+    repeatingTask: boolean;
+
     completedAt: number | null;
     priority: "low" | "medium" | "high";
-    weeklySchedule: string[]; 
 }
 
 export interface StripeDetails {

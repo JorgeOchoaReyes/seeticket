@@ -1,6 +1,5 @@
 
 import type React from "react";
-
 import { useState } from "react";
 import { useRouter } from "next/router";
 import { Button } from "~/components/ui/button";
@@ -11,16 +10,7 @@ import { Label } from "~/components/ui/label";
 import { Checkbox } from "~/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "~/components/ui/card";
 import { v4 as uuidv4 } from "uuid";
-
-export interface Ticket {
-  id: string
-  title: string
-  description: string
-  duetime: number
-  completedAt: number | null
-  priority: "low" | "medium" | "high"
-  weeklySchedule: string[]
-}
+import type { Ticket } from "~/types";
 
 const daysOfWeek = [
   { id: "monday", label: "Monday" },
@@ -32,12 +22,22 @@ const daysOfWeek = [
   { id: "sunday", label: "Sunday" },
 ];
 
-export default function CreateTicket() {
+export const TicketGenrator = ({
+  triggerClose,
+  workspaceId,
+  ticketGroupId,
+}: {
+    triggerClose: () => Promise<void>,
+    workspaceId: string,
+    ticketGroupId: string,
+}) => {
   const router = useRouter();
   const [formData, setFormData] = useState<Omit<Ticket, "id" | "completedAt">>({
     title: "",
     description: "",
-    duetime: Date.now() + 86400000,  
+    duetime:  "",
+    dueDate: Date.now(),
+    repeatingTask: false,  
     priority: "medium",
     weeklySchedule: [],
   });
@@ -67,8 +67,8 @@ export default function CreateTicket() {
 
   const handleScheduleChange = (day: string, checked: boolean) => {
     const updatedSchedule = checked
-      ? [...formData.weeklySchedule, day]
-      : formData.weeklySchedule.filter((d) => d !== day);
+      ? [...formData?.weeklySchedule ?? [], day]
+      : formData?.weeklySchedule?.filter((d) => d !== day);
 
     setFormData({
       ...formData,
@@ -76,11 +76,11 @@ export default function CreateTicket() {
     });
   };
 
-  const handleDueDateChange = (e: React.ChangeEvent<HTMLInputElement>) => { 
-    const timestamp = new Date(e.target.value).getTime();
+  const handleDueTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {  
+    const time = e.target.value;  
     setFormData({
       ...formData,
-      duetime: timestamp,
+      duetime: time,
     });
   };
 
@@ -95,7 +95,7 @@ export default function CreateTicket() {
       newErrors.description = "Description is required";
     }
 
-    if (formData.weeklySchedule.length === 0) {
+    if (formData?.weeklySchedule?.length === 0) {
       newErrors.weeklySchedule = "Select at least one day for the schedule";
     }
 
@@ -127,7 +127,7 @@ export default function CreateTicket() {
  
   const formatDateForInput = (timestamp: number) => {
     const date = new Date(timestamp);
-    return date.toISOString().split("T")[0];
+    return date.toISOString();
   };
 
   return (
@@ -164,16 +164,59 @@ export default function CreateTicket() {
               {errors.description && <p className="text-sm text-red-500">{errors.description}</p>}
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="duedate">Due Date</Label>
-              <Input
+            <div className="flex flex-row gap-4"> 
+              <Label htmlFor="duedate">Repeating Task </Label>
+              <Checkbox 
                 id="duedate"
-                name="duedate"
-                type="date"
-                value={formatDateForInput(formData.duetime)}
-                onChange={handleDueDateChange}
+                checked={formData.repeatingTask}
+                onCheckedChange={(checked) => setFormData({ ...formData, repeatingTask: typeof checked !== "string" ? checked : false })}
+                className="w-4 h-4"                
               />
             </div>
+
+            {
+              formData.repeatingTask ? (
+                <div className="space-y-2">
+                  <Label htmlFor="duedate">Due Date</Label>
+                  <Input
+                    id="duedate"
+                    name="duedate"
+                    type="date"
+                    value={formatDateForInput(formData.dueDate ?? Date.now())}
+                    onChange={(e) => setFormData({ ...formData, dueDate: new Date(e.target.value).getTime() })}
+                  />
+                </div>
+              ) : <>
+                <div className="space-y-2">
+                  <Label htmlFor="duetime">Due Time {formData.duetime}</Label>
+                  <Input
+                    id="duetime"
+                    name="duetime"
+                    type="time"
+                    value={formData.duetime}
+                    onChange={handleDueTimeChange}
+                  />
+                </div>
+                <div className="space-y-3">
+                  <Label>Weekly Schedule</Label>
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
+                    {daysOfWeek.map((day) => (
+                      <div key={day.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={day.id}
+                          checked={formData?.weeklySchedule?.includes(day.id)}
+                          onCheckedChange={(checked) => handleScheduleChange(day.id, checked as boolean)}
+                        />
+                        <Label htmlFor={day.id} className="cursor-pointer">
+                          {day.label}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                  {errors.weeklySchedule && <p className="text-sm text-red-500">{errors.weeklySchedule}</p>}
+                </div>
+              </>
+            } 
 
             <div className="space-y-3">
               <Label>Priority</Label>
@@ -199,26 +242,8 @@ export default function CreateTicket() {
               </RadioGroup>
             </div>
 
-            <div className="space-y-3">
-              <Label>Weekly Schedule</Label>
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
-                {daysOfWeek.map((day) => (
-                  <div key={day.id} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={day.id}
-                      checked={formData.weeklySchedule.includes(day.id)}
-                      onCheckedChange={(checked) => handleScheduleChange(day.id, checked as boolean)}
-                    />
-                    <Label htmlFor={day.id} className="cursor-pointer">
-                      {day.label}
-                    </Label>
-                  </div>
-                ))}
-              </div>
-              {errors.weeklySchedule && <p className="text-sm text-red-500">{errors.weeklySchedule}</p>}
-            </div>
           </CardContent>
-          <CardFooter className="flex justify-between">
+          <CardFooter className="flex justify-between mt-5">
             <Button variant="outline" type="button" onClick={() => router.back()}>
               Cancel
             </Button>
@@ -228,4 +253,4 @@ export default function CreateTicket() {
       </Card>
     </div>
   );
-}
+};
