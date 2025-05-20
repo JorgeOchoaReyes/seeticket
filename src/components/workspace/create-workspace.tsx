@@ -34,7 +34,8 @@ export function WorkspaceCreator({triggerClose}: {triggerClose: () => void;}) {
     createdAt: Date.now(),
     updatedAt: Date.now(),
     ownerId: "current-user-id", 
-    ticketGroupsRef: [],
+    ticketGroupsRef: [], 
+    ticketGroups: [],
     ownerName: "current-user-name",
   });
   const [currentTicketGroupIndex, setCurrentTicketGroupIndex] = useState<number | null>(null);  
@@ -132,6 +133,7 @@ export function WorkspaceCreator({triggerClose}: {triggerClose: () => void;}) {
         ownerId: "current-user-id", 
         ticketGroupsRef: [],
         ownerName: "current-user-name",
+        ticketGroups: [],
       });
       workspaceForm.reset({
         name: "",

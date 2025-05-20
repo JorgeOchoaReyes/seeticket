@@ -15,13 +15,20 @@ export const ticketSchema = z.object({
   priority: z.union([z.literal("low"), z.literal("medium"), z.literal("high")])
 });
 
+export const ticketRefSchema = ticketSchema.pick({
+  id: true,
+  title: true,
+  description: true
+});
+
 export const ticketGroupSchema = z.object({
   id: z.string(),
   name: z.string(),
   description: z.string(),
   createdAt: z.number(),
   updatedAt: z.number(),
-  tickets: z.array(ticketSchema)
+  tickets: z.array(ticketSchema).optional(),
+  ticketsRef: z.array(ticketRefSchema).optional()
 });
 
 export const ticketGroupRefSchema = ticketGroupSchema.pick({
@@ -254,7 +261,7 @@ export const workspaceRouter = createTRPCRouter({
 
       const ticketRef: TicketRef = {
         id: input.ticket.id,
-        name: input.ticket.title,
+        title: input.ticket.title,
         description: input.ticket.description,
       };
 

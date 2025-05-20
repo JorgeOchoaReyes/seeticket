@@ -27,7 +27,7 @@ export interface TicketGroup {
     ticketsRef?: TicketRef[];
 }
 
-export type TicketRef = Pick<TicketGroup, "id" | "name" | "description">;
+export type TicketRef = Pick<Ticket, "id" | "title" | "description">;
 export interface Ticket {
     id: string; 
     title: string; 
