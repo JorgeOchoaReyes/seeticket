@@ -23,7 +23,8 @@ export interface TicketGroup {
     description: string;
     createdAt: number;
     updatedAt: number;
-    tickets: Ticket[];
+    tickets?: Ticket[];
+    ticketsRef?: TicketRef[];
 }
 
 export type TicketRef = Pick<TicketGroup, "id" | "name" | "description">;

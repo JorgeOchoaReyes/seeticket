@@ -1,6 +1,6 @@
 
 import type React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
@@ -11,6 +11,9 @@ import { Checkbox } from "~/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "~/components/ui/card";
 import { v4 as uuidv4 } from "uuid";
 import type { Ticket } from "~/types";
+import { api } from "~/utils/api";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 const daysOfWeek = [
   { id: "monday", label: "Monday" },
@@ -26,10 +29,12 @@ export const TicketGenrator = ({
   triggerClose,
   workspaceId,
   ticketGroupId,
+  selectedTicket
 }: {
     triggerClose: () => Promise<void>,
     workspaceId: string,
     ticketGroupId: string,
+    selectedTicket: Ticket | null,
 }) => {
   const router = useRouter();
   const [formData, setFormData] = useState<Omit<Ticket, "id" | "completedAt">>({
@@ -41,8 +46,34 @@ export const TicketGenrator = ({
     priority: "medium",
     weeklySchedule: [],
   });
-
   const [errors, setErrors] = useState<Record<string, string>>({});
+  
+  const createTicketMutation = api.workspace.addTicket.useMutation(); 
+
+  useEffect(() => {
+    if (selectedTicket) {
+      setFormData({
+        title: selectedTicket.title,
+        description: selectedTicket.description,
+        duetime: selectedTicket.duetime,
+        dueDate: selectedTicket.dueDate,
+        repeatingTask: selectedTicket.repeatingTask,
+        priority: selectedTicket.priority,
+        weeklySchedule: selectedTicket.weeklySchedule,
+      });
+    }
+    return () => {
+      setFormData({
+        title: "",
+        description: "",
+        duetime:  "",
+        dueDate: Date.now(),
+        repeatingTask: false,  
+        priority: "medium",
+        weeklySchedule: [],
+      });
+    };
+  }, [selectedTicket]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -94,11 +125,7 @@ export const TicketGenrator = ({
     if (!formData.description.trim()) {
       newErrors.description = "Description is required";
     }
-
-    if (formData?.weeklySchedule?.length === 0) {
-      newErrors.weeklySchedule = "Select at least one day for the schedule";
-    }
-
+ 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -107,19 +134,37 @@ export const TicketGenrator = ({
     e.preventDefault();
 
     if (!validateForm()) {
+      toast.error("Please fill in all required fields");
       return;
     }
  
     const newTicket: Ticket = {
-      id: uuidv4(),
+      id: selectedTicket ? selectedTicket.id : uuidv4(),
       ...formData,
       completedAt: null,
     };
 
     try { 
-      console.log("Submitting ticket:", newTicket); 
-      alert("Ticket created successfully!");
-      await router.push("/tickets");
+      const res = await createTicketMutation.mutateAsync({
+        workspaceId,
+        ticketGroupId,
+        ticket: newTicket,
+      });
+      if(res) {
+        toast.success("Ticket created successfully");
+        await triggerClose();
+        setFormData({
+          title: "",
+          description: "",
+          duetime: "",
+          dueDate: Date.now(),
+          repeatingTask: false,
+          priority: "medium",
+          weeklySchedule: [],
+        });
+      } else {
+        toast.error("Failed to create ticket");
+      } 
     } catch (error) {
       console.error("Failed to create ticket:", error);
     }
@@ -127,7 +172,7 @@ export const TicketGenrator = ({
  
   const formatDateForInput = (timestamp: number) => {
     const date = new Date(timestamp);
-    return date.toISOString();
+    return date.toISOString().split("T")[0];
   };
 
   return (
@@ -175,7 +220,7 @@ export const TicketGenrator = ({
             </div>
 
             {
-              formData.repeatingTask ? (
+              !formData.repeatingTask ? (
                 <div className="space-y-2">
                   <Label htmlFor="duedate">Due Date</Label>
                   <Input
@@ -247,7 +292,11 @@ export const TicketGenrator = ({
             <Button variant="outline" type="button" onClick={() => router.back()}>
               Cancel
             </Button>
-            <Button type="submit">Create Ticket</Button>
+            <Button type="submit">{
+              createTicketMutation.isPending ? 
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> :
+                "Save"
+            }</Button>
           </CardFooter>
         </form>
       </Card>

@@ -1,17 +1,18 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import type { TicketGroup, Workspace } from "~/types"; 
-import { firestore } from "firebase-admin";
-import { get } from "http";
+import type { Ticket, TicketGroup, TicketRef, Workspace } from "~/types"; 
+import { firestore } from "firebase-admin"; 
 
 export const ticketSchema = z.object({
   id: z.string(),
   title: z.string(),
   description: z.string(),
-  duetime: z.number(),
+  duetime: z.string().optional(),
+  dueDate: z.number().optional(),
+  weeklySchedule: z.array(z.string()).optional(),
+  repeatingTask: z.boolean(),
   completedAt: z.number().nullable(),
-  priority: z.union([z.literal("low"), z.literal("medium"), z.literal("high")]),
-  weeklySchedule: z.array(z.string())
+  priority: z.union([z.literal("low"), z.literal("medium"), z.literal("high")])
 });
 
 export const ticketGroupSchema = z.object({
@@ -41,7 +42,6 @@ export const workspaceSchema = z.object({
   ticketGroupsRef: z.array(ticketGroupRefSchema).optional()
 });
 
-
 export const workspaceRouter = createTRPCRouter({
   createWorkspace: protectedProcedure
     .input(z.object({ workspace: workspaceSchema }))
@@ -57,7 +57,7 @@ export const workspaceRouter = createTRPCRouter({
 
       const ticketGroups = workspace.ticketGroupsRef ?? []; 
 
-      await db.collection("users").doc(user?.uid).collection("workspaces").doc(workspace.id).set({
+      await db.collection("workspaces").doc(workspace.id).set({
         ...workspace,
         createdAt: Date.now(),
         updatedAt: Date.now(),
@@ -67,7 +67,7 @@ export const workspaceRouter = createTRPCRouter({
       
       await Promise.all(
         ticketGroups.map(async (ticketGroup) => {
-          await db.collection("users").doc(user?.uid).collection("workspaces").doc(workspace.id).collection("ticketGroups").doc(ticketGroup.id).set({
+          await db.collection("workspaces").doc(workspace.id).collection("ticketGroups").doc(ticketGroup.id).set({
             ...ticketGroup,
             createdAt: Date.now(),
             updatedAt: Date.now(),
@@ -87,10 +87,9 @@ export const workspaceRouter = createTRPCRouter({
         throw new Error("User not found");
       }
 
-      const workspaces = await db
-        .collection("users")
-        .doc(user?.uid)
+      const workspaces = await db 
         .collection("workspaces")
+        .where("ownerId", "==", user?.uid)
         .orderBy("createdAt", "desc")
         .limit(10)
         .get();
@@ -110,10 +109,9 @@ export const workspaceRouter = createTRPCRouter({
         throw new Error("User not found");
       }
 
-      const workspaces = await db
-        .collection("users")
-        .doc(user?.uid)
+      const workspaces = await db 
         .collection("workspaces")
+        .where("ownerId", "==", user?.uid)
         .limit(input.limit)
         .offset(input.offset)
         .get();
@@ -133,22 +131,27 @@ export const workspaceRouter = createTRPCRouter({
         throw new Error("User not found");
       }
 
-      const workspaceFetch = await db
-        .collection("users")
-        .doc(user?.uid)
+      const workspaceFetch = await db 
         .collection("workspaces")
         .doc(input.id)
         .get();
-      const ticketGroupsFetch = await db
-        .collection("users")
-        .doc(user?.uid)
+
+      if (!workspaceFetch.exists) {
+        throw new Error("Workspace not found");
+      }
+
+      const ticketGroupsFetch = await db 
         .collection("workspaces")
         .doc(input.id)
         .collection("ticketGroups")
         .get();
-      
-      
+
       const workspace = workspaceFetch.data() as Workspace; 
+      
+      if(workspace?.ownerId !== user?.uid) {
+        throw new Error("You are not the owner of this workspace");
+      }
+      
       const ticketGroups = ticketGroupsFetch.docs.map((doc) => {
         return doc.data() as TicketGroup;
       }); 
@@ -168,12 +171,32 @@ export const workspaceRouter = createTRPCRouter({
       if (!user) {
         throw new Error("User not found");
       }
+      
+      const existinsgWorksapaceTicketGroups = await db 
+        .collection("workspaces")
+        .doc(input.workspaceId)
+        .get();
+      const workspace = existinsgWorksapaceTicketGroups.data() as Workspace;
+
+      if (!workspace) {
+        throw new Error("Workspace not found");
+      }
+      if (workspace?.ownerId !== user?.uid) {
+        throw new Error("You are not the owner of this workspace");
+      }
+
+      await db 
+        .collection("workspaces")
+        .doc(input.workspaceId)
+        .set({
+          ...workspace,
+          ticketGroupsRef: [...(workspace.ticketGroupsRef ?? []), ...input.ticketGroupRef],
+          updatedAt: Date.now(),
+        }, { merge: true });
 
       await Promise.all(
         input.ticketGroupRef.map(async (ticketGroupr) => {
-          await db
-            .collection("users")
-            .doc(user?.uid)
+          await db 
             .collection("workspaces")
             .doc(input.workspaceId)
             .collection("ticketGroups")
@@ -185,24 +208,6 @@ export const workspaceRouter = createTRPCRouter({
             });
         })
       ); 
-      const existinsgWorksapaceTicketGroups = await db
-        .collection("users")
-        .doc(user?.uid)
-        .collection("workspaces")
-        .doc(input.workspaceId)
-        .get();
-      const workspace = existinsgWorksapaceTicketGroups.data() as Workspace;
-
-      await db
-        .collection("users")
-        .doc(user?.uid)
-        .collection("workspaces")
-        .doc(input.workspaceId)
-        .set({
-          ...workspace,
-          ticketGroupsRef: [...(workspace.ticketGroupsRef ?? []), ...input.ticketGroupRef],
-          updatedAt: Date.now(),
-        }, { merge: true });
 
       return true; 
     }),
@@ -216,9 +221,19 @@ export const workspaceRouter = createTRPCRouter({
         throw new Error("User not found");
       }
 
-      const ticketGroups = await db
-        .collection("users")
-        .doc(user?.uid)
+      const workspaceFetch = await db 
+        .collection("workspaces")
+        .doc(input.workspaceId)
+        .get();
+      if (!workspaceFetch.exists) {
+        throw new Error("Workspace not found");
+      }
+      const workspace = workspaceFetch.data() as Workspace;
+      if (workspace?.ownerId !== user?.uid) {
+        throw new Error("You are not the owner of this workspace");
+      }
+
+      const ticketGroups = await db 
         .collection("workspaces")
         .doc(input.workspaceId)
         .collection("ticketGroups")
@@ -226,5 +241,93 @@ export const workspaceRouter = createTRPCRouter({
         .get();
 
       return ticketGroups.data() as TicketGroup;
+    }),
+  addTicket: protectedProcedure
+    .input(z.object({ workspaceId: z.string(), ticketGroupId: z.string(), ticket: ticketSchema }))
+    .mutation(async ({ ctx, input }) => {
+      const db = ctx.db;
+      const user = ctx.session.user;
+
+      if (!user) {
+        throw new Error("User not found");
+      }
+
+      const ticketRef: TicketRef = {
+        id: input.ticket.id,
+        name: input.ticket.title,
+        description: input.ticket.description,
+      };
+
+      const existingWorkspace = await db 
+        .collection("workspaces")
+        .doc(input.workspaceId)
+        .get();
+      const workspace = existingWorkspace.data() as Workspace;
+      if (!workspace) {
+        throw new Error("Workspace not found");
+      }
+      if (workspace?.ownerId !== user?.uid) {
+        throw new Error("You are not the owner of this workspace");
+      }
+
+      await db 
+        .collection("workspaces")
+        .doc(input.workspaceId)
+        .collection("ticketGroups")
+        .doc(input.ticketGroupId)
+        .set({ 
+          ticketsRef: firestore.FieldValue.arrayUnion(ticketRef),
+          updatedAt: Date.now(),
+        }, { merge: true });
+
+      await db 
+        .collection("workspaces")
+        .doc(input.workspaceId)
+        .collection("ticketGroups")
+        .doc(input.ticketGroupId)
+        .collection("tickets")
+        .doc(input.ticket.id)
+        .set({
+          ...input.ticket,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+        });
+
+      return true;
+    }),
+  getTickets: protectedProcedure
+    .input(z.object({ workspaceId: z.string(), ticketGroupId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = ctx.db;
+      const user = ctx.session.user;
+
+      if (!user) {
+        throw new Error("User not found");
+      }
+
+      const existingWorkspace = await db 
+        .collection("workspaces")
+        .doc(input.workspaceId)
+        .get();
+      const workspace = existingWorkspace.data() as Workspace;
+      if (!workspace) {
+        throw new Error("Workspace not found");
+      }
+      if (workspace?.ownerId !== user?.uid) {
+        throw new Error("You are not the owner of this workspace");
+      }
+
+      const tickets = await db 
+        .collection("workspaces")
+        .doc(input.workspaceId)
+        .collection("ticketGroups")
+        .doc(input.ticketGroupId)
+        .collection("tickets")
+        .get();
+
+      return tickets.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Ticket[];
     }),
 });
