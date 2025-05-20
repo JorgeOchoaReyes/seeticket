@@ -22,22 +22,8 @@ export default function TicketGroupPage() {
   const id = router.query.id as string;
   const workspaceId = router.query.wpId as string;
   const getTickets = api.workspace.getTickets.useMutation();
-  const getTicketGroup = api.workspace.findTicketGroupBId.useMutation();
+  const getTicketGroup = api.workspace.findTicketGroupBId.useMutation(); 
 
-  useEffect(() => {
-    if (id) {
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      (async () => {
-        const res = await getTicketGroup.mutateAsync({ 
-          workspaceId: workspaceId,
-          ticketGroupId: id,
-        });
-        if (res) {
-          setTicketGroup(res);
-        }
-      })();
-    }
-  }, [id]);
   useEffect(() => {
     if (id) {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -48,6 +34,16 @@ export default function TicketGroupPage() {
         });
         if (res) {
           setTickets(res);
+        }
+      })();
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      (async () => {
+        const res = await getTicketGroup.mutateAsync({ 
+          workspaceId: workspaceId,
+          ticketGroupId: id,
+        });
+        if (res) {
+          setTicketGroup(res);
         }
       })();
     }
