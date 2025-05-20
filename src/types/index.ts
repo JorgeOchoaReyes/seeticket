@@ -23,18 +23,23 @@ export interface TicketGroup {
     description: string;
     createdAt: number;
     updatedAt: number;
-    tickets: Ticket[];
+    tickets?: Ticket[];
+    ticketsRef?: TicketRef[];
 }
 
-export type TicketRef = Pick<TicketGroup, "id" | "name" | "description">;
+export type TicketRef = Pick<Ticket, "id" | "title" | "description">;
 export interface Ticket {
     id: string; 
     title: string; 
     description: string;
-    duetime: number;
+
+    duetime?: string;
+    dueDate?: number; 
+    weeklySchedule?: string[]; 
+    repeatingTask: boolean;
+
     completedAt: number | null;
     priority: "low" | "medium" | "high";
-    weeklySchedule: string[]; 
 }
 
 export interface StripeDetails {

@@ -1,15 +1,12 @@
 "use client";
 import React, { useState } from "react";
-import {
-  FiChevronDown,
-  FiChevronsRight,
-  FiCreditCard,
+import { 
+  FiChevronsRight, 
   FiDollarSign,
   FiHome, 
   FiSettings
 } from "react-icons/fi";
-import { MdWorkspacesFilled } from "react-icons/md";
-import { FaMagnifyingGlass } from "react-icons/fa6";
+import { MdWorkspacesFilled } from "react-icons/md"; 
 import { motion } from "framer-motion";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "~/firebase";
