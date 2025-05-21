@@ -3,19 +3,22 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import type { Ticket } from "~/types"; 
-import { getPriorityColor, formatDate } from "~/utils/help";
+import { getPriorityColor, formatDate } from "~/utils/help"; 
 
 export const TicketView = ({
   selectedTicket,
   isDialogOpen,
   setIsDialogOpen,
-  onEdit
+  onEdit,
+  completeTicket
 }: {
     selectedTicket: Ticket | null;
     isDialogOpen: boolean;
     setIsDialogOpen: (open: boolean) => void;
-    onEdit: () => void;
-}) => {
+    onEdit?: () => void;
+    completeTicket?: () => Promise<void>;
+}) => { 
+
   return (
     <>
       {selectedTicket && (
@@ -66,16 +69,19 @@ export const TicketView = ({
                 Close
               </Button>
               <div className="space-x-2">
-                <Button variant="outline" className="border-yellow-500 text-yellow-500 hover:bg-yellow-50" onClick={onEdit}>
+                {onEdit && <Button variant="outline" className="border-yellow-500 text-yellow-500 hover:bg-yellow-50" onClick={onEdit}>
                   Edit
-                </Button>
-                <Button
-                  variant="outline"
-                  className="border-green-500 text-green-500 hover:bg-green-50"
-                  disabled={!!selectedTicket.completedAt}
-                >
+                </Button>}
+                {
+                  completeTicket &&
+                  <Button
+                    variant="outline"
+                    className="border-green-500 text-green-500 hover:bg-green-50"
+                    disabled={!!selectedTicket.completedAt}
+                  >
                   Mark Complete
-                </Button>
+                  </Button>
+                }
               </div>
             </DialogFooter>
           </DialogContent>
