@@ -12,7 +12,7 @@ const getBaseUrl = () => {
 };
  
 export const api = createTRPCNext<AppRouter>({
-  config() {
+  config() { 
     return { 
       links: [
         loggerLink({

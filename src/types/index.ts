@@ -35,8 +35,13 @@ export interface Ticket {
 
     duetime?: string;
     dueDate?: number; 
+    dueDayOfOnly?: boolean; // if false the ticket will show up till the day of other wise only show up on the day of 
     weeklySchedule?: string[]; 
     repeatingTask: boolean;
+
+    originalTicketRef?: string;
+    ticketGroupId?: string;
+    workspaceId?: string;
 
     completedAt: number | null;
     priority: "low" | "medium" | "high";

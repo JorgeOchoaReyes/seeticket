@@ -1,7 +1,7 @@
 import { Button } from "~/components/ui/button";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { Grid2X2, List, Loader2, Plus } from "lucide-react";
+import { Grid2X2, Link, List, Loader2, Plus } from "lucide-react";
 import { api } from "~/utils/api";
 import type { Ticket, TicketGroup } from "~/types";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "~/components/ui/dialog";   
@@ -68,7 +68,7 @@ export default function TicketGroupPage() {
         <div className="flex space-x-2">
           <Button variant={viewMode === "card" ? "default" : "outline"} size="sm" onClick={() => setViewMode("card")}>
             <Grid2X2 className="mr-2 h-4 w-4" />
-              Card View
+              Cards
           </Button>
           <Button
             variant={viewMode === "table" ? "default" : "outline"}
@@ -76,35 +76,43 @@ export default function TicketGroupPage() {
             onClick={() => setViewMode("table")}
           >
             <List className="mr-2 h-4 w-4" />
-              Table View
+              Table
           </Button>
         </div> 
-        <Dialog open={openAddTickets} onOpenChange={(open) => {
-          setOpenAddTickets(open);
-          setSelectedTicket(null);
-        }}> 
-          <Button onClick={() => setOpenAddTickets(true)} variant="outline"> <Plus /> Add Tickets </Button> 
-          <DialogContent className="w-full">
-            <div className="overflow-auto max-h-[80vh] w-full">
-              <DialogHeader>
-                <DialogTitle>New Tickets</DialogTitle>
-                <DialogDescription> 
+        <div className="flex space-x-2">
+          <Button 
+ 
+            onClick={async () => {
+              await router.push(`/dashboard/ds/${workspaceId}?tgId=${id}`); 
+            }} >
+            <Link /> See Display View 
+          </Button> 
+          <Dialog open={openAddTickets} onOpenChange={(open) => {
+            setOpenAddTickets(open);
+            setSelectedTicket(null);
+          }}> 
+            <Button onClick={() => setOpenAddTickets(true)} variant="outline"> <Plus /> Add Tickets </Button> 
+            <DialogContent className="w-full">
+              <div className="overflow-auto max-h-[80vh] w-full">
+                <DialogHeader>
+                  <DialogTitle>New Tickets</DialogTitle>
+                  <DialogDescription> 
                   Create a new ticket.
-                </DialogDescription>
-              </DialogHeader> 
-              <TicketGenrator 
-                workspaceId={workspaceId}
-                ticketGroupId={ticketGroup?.id ?? ""}
-                triggerClose={async () => {  
-                  setOpenAddTickets(false);
-                }} 
-                selectedTicket={selectedTicket}
-              /> 
-            </div> 
-          </DialogContent>
-        </Dialog> 
+                  </DialogDescription>
+                </DialogHeader> 
+                <TicketGenrator 
+                  workspaceId={workspaceId}
+                  ticketGroupId={ticketGroup?.id ?? ""}
+                  triggerClose={async () => {  
+                    setOpenAddTickets(false);
+                  }} 
+                  selectedTicket={selectedTicket}
+                /> 
+              </div> 
+            </DialogContent>
+          </Dialog> 
+        </div>
       </div>
-
       <div className="flex flex-col items-center justify-center"> 
         {
           getTickets.isPending ? (

@@ -336,5 +336,5 @@ export const workspaceRouter = createTRPCRouter({
         id: doc.id,
         ...doc.data()
       })) as Ticket[];
-    }),
+    }),  
 });

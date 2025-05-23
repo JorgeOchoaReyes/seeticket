@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import Head from "next/head"; 
-import { auth } from "..//firebase";
+import firebase from "../firebase";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
@@ -22,8 +22,8 @@ export default function SignIn() {
   const [showPassword, setShowPassword] = useState(false); 
   const router = useRouter();
 
-  const [signInWithGoogle, _googleUser, googleLoading, _googleError, ] = useSignInWithGoogle(auth); 
-  const [signInWithEmailAndPassword, _userCredential, loadingCredential, errorCredential, ] = useSignInWithEmailAndPassword(auth);
+  const [signInWithGoogle, _googleUser, googleLoading, _googleError, ] = useSignInWithGoogle(firebase.auth); 
+  const [signInWithEmailAndPassword, _userCredential, loadingCredential, errorCredential, ] = useSignInWithEmailAndPassword(firebase.auth);
 
   const handleSignInEmailAndPassword = async (e: React.FormEvent) => {
     e.preventDefault();
