@@ -392,7 +392,7 @@ export const workspaceRouter = createTRPCRouter({
         }); 
       });
 
-      return tickets;
+      return tickets.length === 0 ? [] : tickets;
     }),
   completedATicket: protectedProcedure
     .input(z.object({ workspaceId: z.string(), ticketGroupId: z.string(), ticketId: z.string() }))

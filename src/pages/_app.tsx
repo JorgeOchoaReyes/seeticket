@@ -3,7 +3,7 @@ import { Geist } from "next/font/google";
 import { Toaster } from "sonner";
 import { useRouter } from "next/router";
 import { onIdTokenChanged } from "firebase/auth";
-import { auth } from "~/firebase";
+import firebase from "~/firebase";
 import nookies from "nookies";
 import { api } from "~/utils/api"; 
 import "~/styles/globals.css";
@@ -20,7 +20,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
 
   useEffect(() => {
     const listener = onIdTokenChanged(
-      auth,
+      firebase.auth,
       // eslint-disable-next-line @typescript-eslint/no-misused-promises
       async (user) => {
         const token = await user?.getIdToken();
@@ -42,7 +42,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
     return () => {
       listener();
     };
-  }, [auth]);
+  }, [firebase.auth]);
   
   return (
     <div className={geist.className}>

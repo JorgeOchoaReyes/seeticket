@@ -1,11 +1,16 @@
-import {initializeApp, getApps, type FirebaseOptions} from "firebase/app"; 
-import {getAuth} from "firebase/auth";   
-import {getFirestore} from "firebase/firestore";
+import firebase from "firebase/compat/app";
+import {type FirebaseOptions} from "firebase/app";   
+import {getFirestore} from "firebase/firestore"; 
+import { getAuth } from "firebase/auth";
+import "firebase/compat/auth";  
 
-const parseConfig = (JSON.parse(process.env.NEXT_PUBLIC_FIREBASE ?? "{}") ?? {}) as FirebaseOptions;
+const firebaseConfig = (JSON.parse(process.env.NEXT_PUBLIC_FIREBASE ?? "{}") ?? {}) as FirebaseOptions;  
 
-const app = getApps().length > 0 ? getApps()[0] : initializeApp(parseConfig);
-const auth = getAuth(app);
-const firestore = getFirestore();
+const app = firebase.initializeApp(firebaseConfig);
 
-export { app, auth, firestore };
+const db = getFirestore(app);
+const auth = getAuth(app); 
+
+const x = { auth, db, firebase, app,   };
+
+export default x;

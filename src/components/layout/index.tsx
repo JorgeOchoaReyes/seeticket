@@ -9,14 +9,14 @@ import {
 import { MdWorkspacesFilled } from "react-icons/md"; 
 import { motion } from "framer-motion";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "~/firebase";
+import firebase from "~/firebase";
 import type { User } from "firebase/auth"; 
 import { useRouter, type NextRouter } from "next/router";
 import Head from "next/head";
 import { Loader2 } from "lucide-react";
 
 export const Layout: React.FC<{children: React.ReactNode}> = ({children}) => {
-  const [ user, loading ] = useAuthState(auth);
+  const [ user, loading ] = useAuthState(firebase.auth);
   const router = useRouter();
   const pathname = router.pathname; 
   const _title = pathname.split("/")?.slice(-1)?.[0]?.replace(/-/g, " ") ?? "Dashboard";
