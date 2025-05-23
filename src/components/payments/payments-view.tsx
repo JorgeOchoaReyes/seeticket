@@ -1,7 +1,6 @@
-import { useState, useEffect } from "react";
-import { useRouter } from "next/router";
+import { useState, useEffect } from "react"; 
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "~/firebase"; 
+import firebase from "~/firebase"; 
 import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../../components/ui/card";
 import { Badge } from "../../components/ui/badge";
@@ -34,11 +33,10 @@ const plans = [
 ];
 
 export default function Pricing() {
-  const [user, authLoading] = useAuthState(auth);
+  const [user, authLoading] = useAuthState(firebase.auth);
   const [subscription, setSubscription] = useState<{status: string; plan: string | null; current_period_end: number | null} | null>(null); 
   const [loading, setLoading] = useState(true);
-  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
-  const router = useRouter();
+  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null); 
 
   const createCheckoutSession = api.stripe.createCheckoutSession.useMutation(); 
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { auth } from "~/firebase";
+import firebase from "~/firebase";
 import { useAuthState } from "react-firebase-hooks/auth"; 
 import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../../components/ui/card";
@@ -11,7 +11,7 @@ import { Badge } from "../../components/ui/badge";
 import { Calendar, AlertCircle } from "lucide-react";
 
 export default function Dashboard() {
-  const [ user, authLoading ] = useAuthState(auth);
+  const [ user, authLoading ] = useAuthState(firebase.auth);
 
   const [subscription, setSubscription] = useState<{
     status: string;
