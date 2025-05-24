@@ -10,11 +10,13 @@ import { cn } from "~/lib/utils";
 export const TicketCardDs = ({
   ticket, 
   onClickHandler,
-  onClickDetails
+  onClickDetails,
+  onRecallTicket
 }: {
     ticket: Ticket,
     onClickHandler: () => void;
     onClickDetails: () => void;
+    onRecallTicket: () => void;
 }) => {
   const [tappedOnce, setTappedOnce] = useState(false);
 
@@ -26,11 +28,20 @@ export const TicketCardDs = ({
         ticket.completedAt ? "opacity-50" : "opacity-100",
       )}
       onClick={() => {
-        if (tappedOnce) {
-          onClickHandler();
-          setTappedOnce(false);
-        } else { 
-          setTappedOnce(true); 
+        if(!ticket.completedAt) {
+          if (tappedOnce) {
+            onClickHandler();
+            setTappedOnce(false);
+          } else { 
+            setTappedOnce(true); 
+          }
+        } else {
+          if (tappedOnce) {
+            onRecallTicket();
+            setTappedOnce(false);
+          } else { 
+            setTappedOnce(true); 
+          }
         }
       }} >
       <CardHeader>

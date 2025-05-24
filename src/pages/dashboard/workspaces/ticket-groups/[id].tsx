@@ -1,7 +1,7 @@
 import { Button } from "~/components/ui/button";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { Grid2X2, Link, List, Loader2, Plus } from "lucide-react";
+import { Grid2X2, Link2, List, Loader2, Plus } from "lucide-react";
 import { api } from "~/utils/api";
 import type { Ticket, TicketGroup } from "~/types";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "~/components/ui/dialog";   
@@ -9,6 +9,9 @@ import { TicketGenrator } from "~/components/workspace/create-ticket";
 import { TicketCard } from "~/components/workspace/ticket-card";
 import { TicketsTable } from "~/components/workspace/ticket-table";
 import { TicketView } from "~/components/workspace/ticket-view";
+import { SiChainlink } from "react-icons/si";
+import Link from "next/link"; 
+import { QrCodePopup } from "~/components/workspace/qr-code";
 
 export default function TicketGroupPage() {
   const router = useRouter();
@@ -80,12 +83,12 @@ export default function TicketGroupPage() {
           </Button>
         </div> 
         <div className="flex space-x-2">
-          <Button 
- 
-            onClick={async () => {
-              await router.push(`/dashboard/ds/${workspaceId}?tgId=${id}`); 
-            }} >
-            <Link /> See Display View 
+          <QrCodePopup value={`/dashboard/ds/${workspaceId}?tgId=${id}`} />
+          <Button
+            asChild >
+            <Link href={`/dashboard/ds/${workspaceId}?tgId=${id}`} target="_blank" rel="noopener noreferrer">
+              <Link2 /> See Display View 
+            </Link>
           </Button> 
           <Dialog open={openAddTickets} onOpenChange={(open) => {
             setOpenAddTickets(open);
