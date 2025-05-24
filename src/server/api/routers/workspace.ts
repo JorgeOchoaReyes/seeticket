@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "~/server/api/trpc";
 import type { Ticket, TicketGroup, TicketRef, Workspace } from "~/types"; 
 import { firestore } from "firebase-admin"; 
 
@@ -218,28 +218,10 @@ export const workspaceRouter = createTRPCRouter({
 
       return true; 
     }),
-  findTicketGroupBId: protectedProcedure
+  findTicketGroupBId: publicProcedure
     .input(z.object({ workspaceId: z.string(), ticketGroupId: z.string() }))  
     .mutation(async ({ ctx, input }) => {
       const db = ctx.db;
-      const user = ctx.session.user;
-
-      if (!user) {
-        throw new Error("User not found");
-      }
-
-      const workspaceFetch = await db 
-        .collection("workspaces")
-        .doc(input.workspaceId)
-        .get();
-      if (!workspaceFetch.exists) {
-        throw new Error("Workspace not found");
-      }
-      const workspace = workspaceFetch.data() as Workspace;
-      if (workspace?.ownerId !== user?.uid) {
-        throw new Error("You are not the owner of this workspace");
-      }
-
       const ticketGroups = await db 
         .collection("workspaces")
         .doc(input.workspaceId)
