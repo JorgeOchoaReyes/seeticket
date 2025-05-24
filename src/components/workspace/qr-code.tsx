@@ -45,7 +45,7 @@ export const QrCodePopup = ({value}: {value?: string}) => {
           <div className="text-center space-y-2">
             <p className="text-sm text-gray-600">Scan with your phone camera to visit:</p>
             <div className="flex items-center gap-2 text-sm font-mono bg-gray-100 px-3 py-2 rounded">
-              <span>{urlRef.current}</span>
+              <span className="text-xs">{urlRef.current}</span>
               <ExternalLink className="w-3 h-3" />
             </div>
           </div>

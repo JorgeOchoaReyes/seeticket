@@ -17,6 +17,7 @@ const geist = Geist({
 const MyApp: AppType = ({ Component, pageProps }) => {
   const router = useRouter();
   const isDashboardRoute = router.pathname.startsWith("/dashboard");
+  const isDSRoute = router.pathname.startsWith("/dashboard/ds"); 
 
   useEffect(() => {
     const listener = onIdTokenChanged(
@@ -24,7 +25,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
       // eslint-disable-next-line @typescript-eslint/no-misused-promises
       async (user) => {
         const token = await user?.getIdToken();
-        if (!token && isDashboardRoute) {
+        if (!token && isDashboardRoute && !isDSRoute) {
           console.error("No token found");
           nookies.destroy(null, "firebase-token", { path: "/" });
           router.push("/sign-in").then().catch((error) => {
