@@ -58,13 +58,6 @@ const Sidebar: React.FC<{user: User | null, router: NextRouter, selected: string
           selected={selected === "/dashboard"}
           setSelected={async () => await router.push("/dashboard")}
           open={open}
-        />
-        <Option
-          Icon={MdWorkspacesFilled}
-          title="Workspaces"
-          selected={selected === "/dashboard/workspaces"}
-          setSelected={async () => await router.push("/dashboard/workspaces")}
-          open={open} 
         />  
         <Option
           Icon={FiDollarSign}
