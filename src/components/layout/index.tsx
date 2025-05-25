@@ -35,11 +35,15 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <>
       <Head>
-        <title>{titleWithCapitalization ?? "Dashboard"}</title>
-        <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+        <title>{titleWithCapitalization ?? "Dashboard"}</title> 
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div className="flex bg-[#f2f4f6] min-h-screen">
+      <div className={
+        cn(
+          "flex bg-[#f2f4f6]",
+          isMobile ? "h-full" : "'"
+        )
+      }>
         {user && <Sidebar user={user} selected={pathname} loading={loading} /> }
         <div className={cn("flex-1 transition-all bg-[#f2f4f6] lg:ml-0", isMobile ? "mt-16" : "")}>{children}</div>
       </div>

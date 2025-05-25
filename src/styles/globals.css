@@ -6,7 +6,7 @@
 @theme {
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"; 
-      --breakpoint-xs: 30rem;
+      --breakpoint-xs: 0rem;
       --breakpoint-2xl: 100rem;
       --breakpoint-3xl: 106rem; 
 }
