@@ -43,7 +43,7 @@ export default function Workspaces() {
         <div className={cn("flex space-x-2 flex-row gap-2")}>
           <Button variant={viewMode === "card" ? "default" : "outline"} size="sm" onClick={() => setViewMode("card")}>
             <Grid2X2 className="mr-2 h-4 w-4" />
-            <span className="xs:hidden ">Card View</span>
+            <span className="xs:hidden md:block">Card View</span>
           </Button>
           <Button
             variant={viewMode === "table" ? "default" : "outline"}
@@ -51,11 +51,11 @@ export default function Workspaces() {
             onClick={() => setViewMode("table")}
           >
             <List className="mr-2 h-4 w-4" />
-            <span className="xs:hidden ">Table View</span>
+            <span className="xs:hidden md:block">Table View</span>
           </Button>
         </div> 
         <Dialog open={openCreateWorkspace} onOpenChange={setOpenCreateWorkspace}> 
-          <Button onClick={() => setOpenCreateWorkspace(true)} variant="outline"> <Plus /> Create Workspace</Button> 
+          <Button onClick={() => setOpenCreateWorkspace(true)} variant="outline"> <Plus /> <span className="xs:hidden md:block">Create Workspace</span></Button> 
           <DialogContent className="w-full">
             <div className="overflow-auto max-h-[80vh] w-full">
               <DialogHeader>
@@ -91,13 +91,13 @@ export default function Workspaces() {
         {
           workspaces.length > 0 && getWorksapces.isLoading === false ? <>
             {viewMode === "card" ? (
-              <div className="flex flex-wrap w-[97%] flex-row items-start gap-6">
+              <div className="flex flex-wrap xs:w-full md:w-[97%] flex-row xs:items-center xs:justify-center lg:justify-normal lg:items-start gap-6">
                 {workspaces.map((workspace) => (
                   <WorkspaceCard key={workspace.id} workspace={workspace} onClickHandler={onClickRedirect} />
                 ))}
               </div>
             ) : (
-              <div className="flex w-[97%] bg-white">
+              <div className="flex w-[97%] bg-white xs:w-full md:w-[97%]">
                 <WorkspaceTable workspaces={workspaces} onClickHandler={onClickRedirect} />
               </div>
             )} 
