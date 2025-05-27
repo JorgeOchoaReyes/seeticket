@@ -18,7 +18,7 @@ export const TicketCard = ({
           <CardTitle className="text-lg">{ticket.title}</CardTitle>
           <Badge className={getPriorityColor(ticket.priority)}>{ticket.priority}</Badge>
         </div>
-        <CardDescription>Due: {formatDate(ticket.dueDate ?? new Date().getTime())}</CardDescription>
+        {!ticket.repeatingTask && <CardDescription>Due: {formatDate(ticket.dueDate ?? new Date().getTime())}</CardDescription>}
       </CardHeader>
       <CardContent>
         <p className="text-sm line-clamp-3 mb-4">{ticket.description}</p>
@@ -32,7 +32,7 @@ export const TicketCard = ({
       </CardContent>
       <CardFooter>
         <Button variant="outline" size="sm" className="w-full" onClick={onClickHandler}>
-                  View Details
+          View Details
         </Button>
       </CardFooter>
     </Card>

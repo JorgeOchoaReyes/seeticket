@@ -87,6 +87,7 @@ export const useTickets = (workspaceId: string, ticketGroupId: string) => {
         try {
           const currentDayOfWeek = new Date().toLocaleDateString("en-US", { weekday: "long" });
           const ticketsWeeklyScheduleRef = collection(doc(collection(doc(collection(firebase.db, "workspaces"), workspaceId), "ticketGroups"),ticketGroupId),"tickets"); 
+          console.log("currentDayOfWeek", currentDayOfWeek);
           const qTicketsWeeklySchedule = query(ticketsWeeklyScheduleRef,where("weeklySchedule", "array-contains", currentDayOfWeek));
           const setupTicketsWeeklyScheduleListener = (callback: (t: Ticket[]) => void) => { 
             if (unsubscribeTicketsWeeklySchedule) {

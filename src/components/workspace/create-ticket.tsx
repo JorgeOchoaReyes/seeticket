@@ -1,7 +1,6 @@
 
 import type React from "react";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
+import { useEffect, useState } from "react"; 
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
@@ -35,8 +34,7 @@ export const TicketGenrator = ({
     workspaceId: string,
     ticketGroupId: string,
     selectedTicket: Ticket | null,
-}) => {
-  const router = useRouter();
+}) => { 
   const [formData, setFormData] = useState<Omit<Ticket, "id" | "completedAt">>({
     title: "",
     description: "",
@@ -142,7 +140,9 @@ export const TicketGenrator = ({
       id: selectedTicket ? selectedTicket.id : uuidv4(),
       ...formData,
       completedAt: null,
-    };
+      dueDate: formData?.repeatingTask ? null : (formData?.dueDate ?? new Date().getTime()),
+      weeklySchedule: formData?.repeatingTask ? formData.weeklySchedule : []
+    }; 
 
     try { 
       const res = await createTicketMutation.mutateAsync({
@@ -233,7 +233,7 @@ export const TicketGenrator = ({
                 </div>
               ) : <>
                 <div className="space-y-2">
-                  <Label htmlFor="duetime">Due Time {formData.duetime}</Label>
+                  <Label htmlFor="duetime">Due Time</Label>
                   <Input
                     id="duetime"
                     name="duetime"
@@ -289,7 +289,7 @@ export const TicketGenrator = ({
 
           </CardContent>
           <CardFooter className="flex justify-between mt-5">
-            <Button variant="outline" type="button" onClick={() => router.back()}>
+            <Button variant="outline" type="button" onClick={async () => await triggerClose()}>
               Cancel
             </Button>
             <Button type="submit">{

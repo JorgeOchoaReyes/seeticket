@@ -9,6 +9,7 @@ import { api } from "~/utils/api";
 import type { Workspace } from "~/types";
 import { useRouter } from "next/router";
 import { cn } from "~/lib/utils";
+import { CardTableButtonGroup } from "~/components/workspace/card-table-groupt";
 
 export default function Workspaces() {
   const router = useRouter();
@@ -39,21 +40,8 @@ export default function Workspaces() {
       </div>  
       <div className={cn(
         "flex flex-row justify-between items-center m-6",
-      )}> 
-        <div className={cn("flex space-x-2 flex-row gap-2")}>
-          <Button variant={viewMode === "card" ? "default" : "outline"} size="sm" onClick={() => setViewMode("card")}>
-            <Grid2X2 className="mr-2 h-4 w-4" />
-            <span className="xs:hidden md:block">Card View</span>
-          </Button>
-          <Button
-            variant={viewMode === "table" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setViewMode("table")}
-          >
-            <List className="mr-2 h-4 w-4" />
-            <span className="xs:hidden md:block">Table View</span>
-          </Button>
-        </div> 
+      )}>  
+        <CardTableButtonGroup viewMode={viewMode} setViewMode={setViewMode} />
         <Dialog open={openCreateWorkspace} onOpenChange={setOpenCreateWorkspace}> 
           <Button onClick={() => setOpenCreateWorkspace(true)} variant="outline"> <Plus /> <span className="xs:hidden md:block">Create Workspace</span></Button> 
           <DialogContent className="w-full">

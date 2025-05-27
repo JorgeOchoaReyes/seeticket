@@ -18,7 +18,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const router = useRouter();
   const pathname = router.pathname; 
   const _title = pathname.split("/")?.slice(-1)?.[0]?.replace(/-/g, " ") ?? "Dashboard";
-  const titleWithCapitalization = _title.charAt(0).toUpperCase() + _title.slice(1);  
+  let titleWithCapitalization = _title.charAt(0).toUpperCase() + _title.slice(1); 
+  titleWithCapitalization = titleWithCapitalization === "[id]" ? "Dashboard" : titleWithCapitalization;
   const [isMobile, setMobile] = useState(false); 
 
   useEffect(() => {
@@ -41,7 +42,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       <div className={
         cn(
           "flex bg-[#f2f4f6]",
-          isMobile ? "h-full" : "'"
+          isMobile ? "h-full min-h-screen" : ""
         )
       }>
         {user && <Sidebar user={user} selected={pathname} loading={loading} /> }
