@@ -12,6 +12,8 @@ import { TicketView } from "~/components/workspace/ticket-view";
 import { SiChainlink } from "react-icons/si";
 import Link from "next/link"; 
 import { QrCodePopup } from "~/components/workspace/qr-code";
+import { cn } from "~/lib/utils";
+import { CardTableButtonGroup } from "~/components/workspace/card-table-groupt";
 
 export default function TicketGroupPage() {
   const router = useRouter();
@@ -68,33 +70,20 @@ export default function TicketGroupPage() {
       </div> 
       <hr className="border-b border-gray-200" /> 
       <div className="flex flex-row justify-between items-center m-6"> 
-        <div className="flex space-x-2">
-          <Button variant={viewMode === "card" ? "default" : "outline"} size="sm" onClick={() => setViewMode("card")}>
-            <Grid2X2 className="mr-2 h-4 w-4" />
-              Cards
-          </Button>
-          <Button
-            variant={viewMode === "table" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setViewMode("table")}
-          >
-            <List className="mr-2 h-4 w-4" />
-              Table
-          </Button>
-        </div> 
-        <div className="flex space-x-2">
+        <CardTableButtonGroup viewMode={viewMode} setViewMode={setViewMode} />
+        <div className="flex space-x-2 flex-row">
           <QrCodePopup value={`/dashboard/ds/${workspaceId}?tgId=${id}`} />
           <Button
             asChild >
             <Link href={`/dashboard/ds/${workspaceId}?tgId=${id}`} target="_blank" rel="noopener noreferrer">
-              <Link2 /> See Display View 
+              <Link2 /><span className="xs:hidden md:block"> Display View </span> 
             </Link>
           </Button> 
           <Dialog open={openAddTickets} onOpenChange={(open) => {
             setOpenAddTickets(open);
             setSelectedTicket(null);
           }}> 
-            <Button onClick={() => setOpenAddTickets(true)} variant="outline"> <Plus /> Add Tickets </Button> 
+            <Button onClick={() => setOpenAddTickets(true)} variant="outline"> <Plus /> <span className="xs:hidden md:block">  Add </span> </Button> 
             <DialogContent className="w-full">
               <div className="overflow-auto max-h-[80vh] w-full">
                 <DialogHeader>
@@ -133,7 +122,7 @@ export default function TicketGroupPage() {
         {
           tickets && getTickets.isPending === false ? <>
             {viewMode === "card" ? (
-              <div className="flex flex-wrap w-[97%] flex-row items-start gap-6">
+              <div className="flex flex-wrap xs:w-full md:w-[97%] flex-row xs:items-center xs:justify-center lg:justify-normal lg:items-start gap-6">
                 {tickets?.map((ticket) => (
                   <TicketCard key={ticket.id} ticket={ticket} onClickHandler={
                     async () => {
@@ -144,7 +133,7 @@ export default function TicketGroupPage() {
                 ))}
               </div>
             ) : (
-              <div className="flex w-[97%] bg-white">
+              <div className="flex w-[97%] bg-white xs:w-full md:w-[97%]">
                 <TicketsTable titckets={tickets} 
                   onClickHandler={async (id) => {
                     const res = tickets?.find((ticket) => ticket.id === id);

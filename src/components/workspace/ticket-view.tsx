@@ -39,10 +39,10 @@ export const TicketView = ({
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div>
+                {!selectedTicket.repeatingTask && <div>
                   <h4 className="text-sm font-medium mb-1">Due Date</h4>
                   <p className="text-sm">{formatDate(selectedTicket?.dueDate ?? 0)}</p>
-                </div>
+                </div>}
 
                 <div>
                   <h4 className="text-sm font-medium mb-1">Status</h4>
@@ -52,7 +52,7 @@ export const TicketView = ({
                 </div>
               </div>
 
-              <div>
+              {selectedTicket.repeatingTask && <div>
                 <h4 className="text-sm font-medium mb-2">Weekly Schedule</h4>
                 <div className="flex flex-wrap gap-1">
                   {selectedTicket?.weeklySchedule?.map((day) => (
@@ -61,7 +61,7 @@ export const TicketView = ({
                     </Badge>
                   ))}
                 </div>
-              </div>
+              </div>}
             </div>
 
             <DialogFooter className="flex justify-between sm:justify-between">

@@ -8,6 +8,8 @@ import type { Workspace } from "~/types";
 import { useRouter } from "next/router"; 
 import { WorkspaceCard } from "~/components/workspace/card";
 import { WorkspaceTable } from "~/components/workspace/table"; 
+import { cn } from "~/lib/utils";
+import { CardTableButtonGroup } from "~/components/workspace/card-table-groupt";
 
 export default function Workspaces() {
   const router = useRouter();
@@ -47,21 +49,8 @@ export default function Workspaces() {
       </div> 
       <hr className="border-b border-gray-200" />
       
-      <div className="flex flex-row justify-between items-center m-6"> 
-        <div className="flex space-x-2">
-          <Button variant={viewMode === "card" ? "default" : "outline"} size="sm" onClick={() => setViewMode("card")}>
-            <Grid2X2 className="mr-2 h-4 w-4" />
-              Card View
-          </Button>
-          <Button
-            variant={viewMode === "table" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setViewMode("table")}
-          >
-            <List className="mr-2 h-4 w-4" />
-              Table View
-          </Button>
-        </div> 
+      <div className="flex flex-row justify-between items-center m-6">  
+        <CardTableButtonGroup viewMode={viewMode} setViewMode={setViewMode} />
         <Dialog open={openCreateWorkspace} onOpenChange={setOpenCreateWorkspace}> 
           <Button onClick={() => setOpenCreateWorkspace(true)} variant="outline"> <Plus /> Add Ticket Group</Button> 
           <DialogContent className="w-full">
@@ -104,7 +93,7 @@ export default function Workspaces() {
         {
           workspace && getWorksapce.isPending === false ? <>
             {viewMode === "card" ? (
-              <div className="flex flex-wrap w-[97%] flex-row items-start gap-6">
+              <div className="flex flex-wrap xs:w-full md:w-[97%] flex-row xs:items-center xs:justify-center lg:justify-normal lg:items-start gap-6">
                 {workspace.ticketGroups?.map((ticketGroup) => (
                   <WorkspaceCard key={ticketGroup.id} workspace={{
                     id: ticketGroup.id,
@@ -118,7 +107,7 @@ export default function Workspaces() {
                 ))}
               </div>
             ) : (
-              <div className="flex w-[97%] bg-white">
+              <div className="flex w-[97%] bg-white xs:w-full md:w-[97%]">
                 <WorkspaceTable workspaces={workspace.ticketGroups?.map((w) => {
                   return {
                     id: w.id,

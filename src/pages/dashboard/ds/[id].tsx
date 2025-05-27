@@ -51,18 +51,10 @@ export default function DisplaySystem() {
           (getTicketGroup.isPending || ticketsLoading) ? (
             <Loader2 className="h-10 w-10 animate-spin" />
           ) : null
-        }
-        {/* {
-          (tickets?.length === 0 && !(getTicketGroup.isPending || ticketsLoading)) ? (
-            <div className="flex flex-col items-center justify-center h-full">
-              <h2 className="text-2xl font-bold">No Ticket Found</h2>
-              <p className="text-gray-500">Create a new ticket to get started.</p>
-            </div>
-          ) : null
-        } */}
+        } 
         {
           tickets && !(getTicketGroup.isPending || ticketsLoading) ?  
-            <div className="flex flex-wrap w-[97%] flex-row items-start gap-6">
+            <div className="flex flex-wrap xs:w-full md:w-[97%] flex-row xs:items-center xs:justify-center lg:justify-normal lg:items-start gap-6">
               {tickets?.map((ticket) => (
                 <TicketCardDs key={ticket.id} ticket={ticket} 
                   onClickHandler={async () => {
@@ -80,7 +72,7 @@ export default function DisplaySystem() {
             </div>
             : null
         }
-        <div className="flex flex-col items-center justify-center">
+        <div className="flex w-[97%] bg-white xs:w-full md:w-[97%]">
           {isDialogOpen && selectedTicket ? (
             <TicketView
               selectedTicket={selectedTicket}

@@ -21,49 +21,53 @@ export const TicketCardDs = ({
   const [tappedOnce, setTappedOnce] = useState(false);
 
   return (
-    <Card key={ticket.id}
-      className={cn(
-        "min-w-[300px] max-w-[400px] bg-white shadow-sm border rounded-md cursor-pointer",
-        tappedOnce ? "border-blue-500" : "border-gray-300",
-        ticket.completedAt ? "opacity-50" : "opacity-100",
-      )}
-      onClick={() => {
-        if(!ticket.completedAt) {
-          if (tappedOnce) {
-            onClickHandler();
-            setTappedOnce(false);
-          } else { 
-            setTappedOnce(true); 
+    <div className="relative">
+      <Card key={ticket.id}
+        className={cn(
+          "min-w-[325px] max-w-[425px] bg-white shadow-sm border rounded-md cursor-pointer relative",
+          tappedOnce ? "border-blue-500" : "border-gray-300",
+          ticket.completedAt ? "opacity-50" : "opacity-100",
+        )}
+        onClick={() => {
+          if(!ticket.completedAt) {
+            if (tappedOnce) {
+              onClickHandler();
+              setTappedOnce(false);
+            } else { 
+              setTappedOnce(true); 
+            }
+          } else {
+            if (tappedOnce) {
+              onRecallTicket();
+              setTappedOnce(false);
+            } else { 
+              setTappedOnce(true); 
+            }
           }
-        } else {
-          if (tappedOnce) {
-            onRecallTicket();
-            setTappedOnce(false);
-          } else { 
-            setTappedOnce(true); 
-          }
-        }
-      }} >
-      <CardHeader>
-        <div className="flex justify-between items-start">
-          <CardTitle className="text-lg">{ticket.title}</CardTitle>
-          <Badge className={getPriorityColor(ticket.priority)}>{ticket.priority}</Badge>
-          <Button variant="ghost" className="h-8 w-8 p-0 z-10" onClick={onClickDetails}>
-            <HelpCircle className="h-4 w-4" />
-          </Button> 
-        </div>
-        <CardDescription>Due: {formatDate(ticket.dueDate ?? new Date().getTime())}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <p className="text-sm line-clamp-3 mb-4">{ticket.description}</p>
-        <div className="flex flex-wrap gap-1">
-          {ticket?.weeklySchedule?.map((day) => (
-            <Badge key={day} variant="outline" className="capitalize">
-              {day.slice(0, 3)}
-            </Badge>
-          ))}
-        </div>
-      </CardContent> 
-    </Card>
+        }} >
+        <CardHeader>
+          <div className="flex justify-between items-start">
+            <CardTitle className="text-lg">{ticket.title}</CardTitle>
+            <Badge className={getPriorityColor(ticket.priority)}>{ticket.priority}</Badge>
+          </div>
+          <CardDescription>Due: {formatDate(ticket.dueDate ?? new Date().getTime())}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm line-clamp-3 mb-4">{ticket.description}</p>
+          <div className="flex flex-wrap gap-1">
+            {ticket?.weeklySchedule?.map((day) => (
+              <Badge key={day} variant="outline" className="capitalize">
+                {day.slice(0, 3)}
+              </Badge>
+            ))}
+          </div>
+        </CardContent>  
+      </Card>
+      <Button variant="ghost" className="h-8 w-8 p-0 z-100 absolute top-5 right-[-3]" onClick={() => {
+        onClickDetails(); 
+      }}>
+        <HelpCircle className="h-4 w-4" />
+      </Button>
+    </div>  
   );
 };

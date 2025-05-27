@@ -29,10 +29,10 @@ export const QrCodePopup = ({value}: {value?: string}) => {
         <Button onClick={() => {
           setShowSharePopup(true);
         }}>
-          <ShareIcon />  Share 
+          <ShareIcon /> <span className="xs:hidden md:block"> Share </span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="xs:max-w-screen lg:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <QrCode className="w-5 h-5" />

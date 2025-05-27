@@ -8,7 +8,7 @@ export const ticketSchema = z.object({
   title: z.string(),
   description: z.string(),
   duetime: z.string().optional(),
-  dueDate: z.number().optional(),
+  dueDate: z.number().optional().nullable(),
   weeklySchedule: z.array(z.string()).optional(),
   repeatingTask: z.boolean(),
   completedAt: z.number().nullable(),
