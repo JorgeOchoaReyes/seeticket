@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import type { Ticket } from "~/types";
 import { doc, onSnapshot, query, collection, where, type Unsubscribe, setDoc, deleteDoc } from "firebase/firestore"; 
 import firebase from "~/firebase";
@@ -33,11 +33,14 @@ export const useTickets = (workspaceId: string, ticketGroupId: string) => {
         let unsubscribetTcketsCompletedSchedule: Unsubscribe | null = null; 
         let unsubscribeTicketsDueDate: Unsubscribe | null = null;  
         let unsubscribeTicketsWeeklySchedule: Unsubscribe | null = null;  
+        let unsubscribetTcketsCompletedDueDate: Unsubscribe | null = null; 
         
         const startOfDay = (new Date()).setHours(0,0,0,0); 
+        const currentDayOfWeek = new Date().toLocaleDateString("en-US", { weekday: "long" }).toLowerCase().trim();
         
-        const updateTicketFunction = (newTickets: Ticket[]) => {
+        const updateTicketFunction = (newTickets: Ticket[], source?: string) => {
           // We should remerge instead of clear the tickets ## TO DO ----------------------------------------
+          console.log("source", source);
           setTickets((t) => { 
             const newIds = newTickets.map((_t) => _t.originalTicketRef); 
 
@@ -58,20 +61,63 @@ export const useTickets = (workspaceId: string, ticketGroupId: string) => {
             return mergeTickets;
           });
         };
+ 
+        const mergeCompletedWithUncompleted = (completedTickets: Ticket[]) => { 
+          setTickets((t) => {
+            const completedTicketsIds = completedTickets.map((ct) => ct.originalTicketRef ?? null).filter(Boolean) as string[]; 
+            const copy = t.map((ct) => {
+              if(completedTicketsIds.includes(ct.id) || completedTicketsIds.includes(ct.originalTicketRef ?? "")) {
+                const findTicketById = completedTickets.find((c) => c.originalTicketRef === ct.id);  
+                if(!findTicketById) {
+                  const findTicketByOriginalTicketRef = completedTickets.find((c) => c.originalTicketRef === ct.originalTicketRef);  
+                  if(!findTicketByOriginalTicketRef) {
+                    return null; 
+                  }
+                  return findTicketByOriginalTicketRef;
+                } 
+                return findTicketById; 
+              }
+              return ct; 
+            }).filter(Boolean) as Ticket[];  
+            return copy;
+          });
+        };
+
+        // Tickets due to day based on schedule
+        try {
+          const ticketsWeeklyScheduleRef = collection(doc(collection(doc(collection(firebase.db, "workspaces"), workspaceId), "ticketGroups"),ticketGroupId),"tickets");  
+          const qTicketsWeeklySchedule = query(ticketsWeeklyScheduleRef,where("weeklySchedule", "array-contains", currentDayOfWeek));
+          const setupTicketsWeeklyScheduleListener = (callback: typeof updateTicketFunction) => {  
+            if (unsubscribeTicketsWeeklySchedule) { 
+              unsubscribeTicketsWeeklySchedule();
+            }  
+            unsubscribeTicketsWeeklySchedule = onSnapshot(qTicketsWeeklySchedule, (snapshot) => {  
+              const ticketsWeeklyScheduleData = snapshot.docs.map(doc => {
+                if(doc.exists()) return { ...doc.data() as Ticket };
+                else return null; 
+              }).filter(Boolean) as Ticket[];  
+              callback(ticketsWeeklyScheduleData, "ticketsWeeklyScheduleData");
+            }, (error) => {
+              console.error("Error fetching tickets by weekly schedule:", error); 
+            });  
+          };  
+          setupTicketsWeeklyScheduleListener(updateTicketFunction);
+        }  catch (err) {
+          console.log("setupTicketsWeeklyScheduleListener", err);
+        } 
 
         // Tickets due today based on date
         try {       
           const ticketsDueDateRef = collection(doc(collection(doc(collection(firebase.db, "workspaces"), workspaceId), "ticketGroups"),ticketGroupId),"tickets"); 
           const qTicketsDueDate = query(ticketsDueDateRef, where("dueDate", ">=", startOfDay)); 
-          const setupTicketsDueDateListener = (callback: (t: Ticket[]) => void) => { 
+          const setupTicketsDueDateListener = (callback: typeof updateTicketFunction) => { 
             if (unsubscribeTicketsDueDate) {
               unsubscribeTicketsDueDate();
             } 
             unsubscribeTicketsDueDate = onSnapshot(qTicketsDueDate, (snapshot) => {
               const ticketsDueDateData = snapshot.docs.map(doc => {
-                if(doc.exists()) return {
-                  ...doc.data() as Ticket
-                }; else return null; 
+                if(doc.exists()) return { ...doc.data() as Ticket };
+                else return null; 
               }).filter(Boolean) as Ticket[]; 
               callback(ticketsDueDateData);
             }, (error) => {
@@ -81,41 +127,39 @@ export const useTickets = (workspaceId: string, ticketGroupId: string) => {
           setupTicketsDueDateListener(updateTicketFunction);
         } catch (err) {
           console.log("setupTicketsDueDateListener", err);
-        } 
+        }  
 
-        // Tickets due to day based on schedule
+        // Completed Tickets Due Dates
         try {
-          const currentDayOfWeek = new Date().toLocaleDateString("en-US", { weekday: "long" });
-          const ticketsWeeklyScheduleRef = collection(doc(collection(doc(collection(firebase.db, "workspaces"), workspaceId), "ticketGroups"),ticketGroupId),"tickets"); 
-          console.log("currentDayOfWeek", currentDayOfWeek);
-          const qTicketsWeeklySchedule = query(ticketsWeeklyScheduleRef,where("weeklySchedule", "array-contains", currentDayOfWeek));
-          const setupTicketsWeeklyScheduleListener = (callback: (t: Ticket[]) => void) => { 
-            if (unsubscribeTicketsWeeklySchedule) {
-              unsubscribeTicketsWeeklySchedule();
+          const ticketsCompletedDueDateRef = collection(doc(collection(doc(collection(firebase.db, "workspaces"), workspaceId), "ticketGroups"),ticketGroupId),"ticketHistory"); 
+          const qTicketsCompletedDueDateSchedule = query(ticketsCompletedDueDateRef,where("dueDate", ">=", startOfDay)); 
+          const setupTicketsCompletedDueDateListener = (callback: (t: Ticket[]) => void) => { 
+            if (unsubscribetTcketsCompletedDueDate) {
+              unsubscribetTcketsCompletedDueDate();
             } 
-            unsubscribeTicketsWeeklySchedule = onSnapshot(qTicketsWeeklySchedule, (snapshot) => {
-              const ticketsWeeklyScheduleData = snapshot.docs.map(doc => {
+            unsubscribetTcketsCompletedDueDate = onSnapshot(qTicketsCompletedDueDateSchedule, (snapshot) => {
+              const ticketsCompletedDueDateData = snapshot.docs.map(doc => {
                 if(doc.exists()) return {
                   ...doc.data() as Ticket
                 }; else return null; 
               }).filter(Boolean) as Ticket[];
-              callback(ticketsWeeklyScheduleData);
+              callback(ticketsCompletedDueDateData);
             }, (error) => {
-              console.error("Error fetching tickets by weekly schedule:", error); 
+              console.error("Error fetching tickets completed:", error); 
             });
-          };  
-          setupTicketsWeeklyScheduleListener(updateTicketFunction);
-        }  catch (err) {
-          console.log("setupTicketsWeeklyScheduleListener", err);
-        } 
-        
-        // Completed Tickets 
+          }; 
+          setupTicketsCompletedDueDateListener(mergeCompletedWithUncompleted); 
+        } catch (err) {
+          console.log("setupTicketsCompletedDueDateListener", err);
+        }
+
+        // Completed Tickets Weekly Schedule
         try {
-          const ticketsCompletedRef = collection(doc(collection(doc(collection(firebase.db, "workspaces"), workspaceId), "ticketGroups"),ticketGroupId),"ticketHistory"); 
-          const qTicketsCompletedSchedule = query(ticketsCompletedRef,where("dueDate", ">=", startOfDay)); 
-          const setupTicketsCompletedListener = (callback: (t: Ticket[]) => void) => { 
-            if (unsubscribeTicketsWeeklySchedule) {
-              unsubscribeTicketsWeeklySchedule();
+          const ticketsCompletedScheduleRef = collection(doc(collection(doc(collection(firebase.db, "workspaces"), workspaceId), "ticketGroups"),ticketGroupId),"ticketHistory"); 
+          const qTicketsCompletedSchedule = query(ticketsCompletedScheduleRef,where("weeklySchedule", "array-contains", currentDayOfWeek)); 
+          const setupTicketsCompletedScheduleListener = (callback: (t: Ticket[]) => void) => { 
+            if (unsubscribetTcketsCompletedSchedule) {
+              unsubscribetTcketsCompletedSchedule();
             } 
             unsubscribetTcketsCompletedSchedule = onSnapshot(qTicketsCompletedSchedule, (snapshot) => {
               const ticketsCompletedScheduleData = snapshot.docs.map(doc => {
@@ -127,31 +171,11 @@ export const useTickets = (workspaceId: string, ticketGroupId: string) => {
             }, (error) => {
               console.error("Error fetching tickets completed:", error); 
             });
-          }; 
-          const mergeCompletedWithUncompleted = (completedTickets: Ticket[]) => { 
-            setTickets((t) => {
-              const completedTicketsIds = completedTickets.map((ct) => ct.originalTicketRef ?? null).filter(Boolean) as string[]; 
-              const copy = t.map((ct) => {
-                if(completedTicketsIds.includes(ct.id) || completedTicketsIds.includes(ct.originalTicketRef ?? "")) {
-                  const findTicketById = completedTickets.find((c) => c.originalTicketRef === ct.id);  
-                  if(!findTicketById) {
-                    const findTicketByOriginalTicketRef = completedTickets.find((c) => c.originalTicketRef === ct.originalTicketRef);  
-                    if(!findTicketByOriginalTicketRef) {
-                      return null; 
-                    }
-                    return findTicketByOriginalTicketRef;
-                  } 
-                  return findTicketById; 
-                }
-                return ct; 
-              }).filter(Boolean) as Ticket[];  
-              return copy;
-            });
-          };
-          setupTicketsCompletedListener(mergeCompletedWithUncompleted); 
+          };  
+          setupTicketsCompletedScheduleListener(mergeCompletedWithUncompleted); 
         } catch (err) {
-          console.log("setupTicketsCompletedListener", err);
-        }
+          console.log("setupTicketsCompletedScheduleListener", err);
+        } 
         
         setTicketsLoading(() => false);
 
@@ -159,6 +183,7 @@ export const useTickets = (workspaceId: string, ticketGroupId: string) => {
           if(unsubscribeTicketsDueDate) unsubscribeTicketsDueDate(); 
           if(unsubscribeTicketsWeeklySchedule) unsubscribeTicketsWeeklySchedule();
           if(unsubscribetTcketsCompletedSchedule) unsubscribetTcketsCompletedSchedule(); 
+          if(unsubscribetTcketsCompletedDueDate) unsubscribetTcketsCompletedDueDate();
           setTickets([]);
         };
 

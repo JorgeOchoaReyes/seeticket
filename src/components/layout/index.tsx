@@ -31,8 +31,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
- 
-
+  
   return (
     <>
       <Head>
