@@ -228,7 +228,7 @@ export const workspaceRouter = createTRPCRouter({
         .collection("ticketGroups")
         .doc(input.ticketGroupId)
         .get();
-
+ 
       return ticketGroups.data() as TicketGroup;
     }),
   addTicket: protectedProcedure

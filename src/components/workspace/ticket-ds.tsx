@@ -46,11 +46,11 @@ export const TicketCardDs = ({
           }
         }} >
         <CardHeader>
-          <div className="flex justify-between items-start">
+          <div className="flex justify-between items-start mr-2">
             <CardTitle className="text-lg">{ticket.title}</CardTitle>
             <Badge className={getPriorityColor(ticket.priority)}>{ticket.priority}</Badge>
           </div>
-          <CardDescription>Due: {formatDate(ticket.dueDate ?? new Date().getTime())}</CardDescription>
+          {!ticket.repeatingTask && <CardDescription>Due: {formatDate(ticket.dueDate ?? new Date().getTime())}</CardDescription>}
         </CardHeader>
         <CardContent>
           <p className="text-sm line-clamp-3 mb-4">{ticket.description}</p>
@@ -63,7 +63,7 @@ export const TicketCardDs = ({
           </div>
         </CardContent>  
       </Card>
-      <Button variant="ghost" className="h-8 w-8 p-0 z-100 absolute top-5 right-[-3]" onClick={() => {
+      <Button variant="ghost" className="h-8 w-8 p-0 z-100 absolute top-5 right-0" onClick={() => {
         onClickDetails(); 
       }}>
         <HelpCircle className="h-4 w-4" />
