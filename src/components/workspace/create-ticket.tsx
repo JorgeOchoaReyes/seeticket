@@ -220,7 +220,17 @@ export const TicketGenrator = ({
             </div>
 
             {
-              !formData.repeatingTask ? (
+              !formData.repeatingTask ? (<>
+                <div className="space-y-2">
+                  <Label htmlFor="duetime">Due Time</Label>
+                  <Input
+                    id="duetime"
+                    name="duetime"
+                    type="time"
+                    value={formData.duetime}
+                    onChange={handleDueTimeChange}
+                  />
+                </div>
                 <div className="space-y-2">
                   <Label htmlFor="duedate">Due Date</Label>
                   <Input
@@ -231,6 +241,7 @@ export const TicketGenrator = ({
                     onChange={(e) => setFormData({ ...formData, dueDate: new Date(e.target.value).getTime() })}
                   />
                 </div>
+              </>
               ) : <>
                 <div className="space-y-2">
                   <Label htmlFor="duetime">Due Time</Label>
