@@ -50,9 +50,8 @@ export const TicketCardDs = ({
       }
 
       const timeDifference = fullDueDateTime - currentTime;
-      const minutesUntilDue = timeDifference / (1000 * 60);
-      console.log(ticket.title, " - - - -", minutesUntilDue);
-      setIsUrgent(minutesUntilDue <= urgentThresholdMinutes && minutesUntilDue > 0);
+      const minutesUntilDue = timeDifference / (1000 * 60); 
+      setIsUrgent(minutesUntilDue <= urgentThresholdMinutes);
     };
 
     checkUrgency();
@@ -101,6 +100,11 @@ export const TicketCardDs = ({
             <CardDescription className={cn("transition-colors duration-300", isUrgent && "text-red-500 font-medium")}>
               Due: {formatDate(ticket.dueDate ?? new Date().getTime())}
               {isUrgent && <span className="ml-2 text-red-600 font-semibold animate-bounce">⚠️ URGENT</span>}
+            </CardDescription>
+          )}     
+          {ticket.duetime && (
+            <CardDescription className={cn("transition-colors duration-300", isUrgent && "text-red-500 font-medium")}>
+              Time: {ticket.duetime}
             </CardDescription>
           )}
         </CardHeader>

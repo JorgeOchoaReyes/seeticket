@@ -43,7 +43,7 @@ export default function Home() {
   return (
     <>
       <Head> 
-        <title>Brewmaster</title>
+        <title>CTicket</title>
         <meta name="description" content="Brewmaster" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
