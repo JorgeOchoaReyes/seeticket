@@ -33,10 +33,10 @@ export interface Ticket {
     title: string; 
     description: string;
 
-    duetime?: string;
+    duetime?: string; // ex. 11:00
     dueDate?: number | null; 
     dueDayOfOnly?: boolean; // if false the ticket will show up till the day of other wise only show up on the day of 
-    weeklySchedule?: string[]; 
+    weeklySchedule?: string[]; // ["monday", "tuesday",....]
     repeatingTask: boolean;
 
     originalTicketRef?: string;
