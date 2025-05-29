@@ -66,7 +66,7 @@ export const TicketCardDs = ({
       <Card
         key={ticket.id}
         className={cn(
-          "min-w-[325px] max-w-[425px] bg-white shadow-sm border rounded-md cursor-pointer relative transition-all duration-300",
+          "min-w-[325px] max-w-[425px] w-[320px] bg-white shadow-sm border rounded-md cursor-pointer relative transition-all duration-300",
           tappedOnce ? "border-blue-500" : "border-gray-300",
           ticket.completedAt ? "opacity-50" : "opacity-100",
           isUrgent && "animate-pulse border-red-500 shadow-red-200 shadow-lg",
@@ -108,8 +108,8 @@ export const TicketCardDs = ({
             </CardDescription>
           )}
         </CardHeader>
-        <CardContent>
-          <p className="text-sm line-clamp-3 mb-4">{ticket.description}</p>
+        <CardContent className="max-w-full">
+          <p className="text-sm line-clamp-3 mb-4 flex-wrap flex">{ticket.description}</p>
           <div className="flex flex-wrap gap-1">
             {ticket?.weeklySchedule?.map((day) => (
               <Badge key={day} variant="outline" className="capitalize">

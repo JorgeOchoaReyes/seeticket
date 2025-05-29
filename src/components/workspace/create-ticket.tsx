@@ -28,12 +28,14 @@ export const TicketGenrator = ({
   triggerClose,
   workspaceId,
   ticketGroupId,
-  selectedTicket
+  selectedTicket,
+  refetchTickets
 }: {
     triggerClose: () => Promise<void>,
     workspaceId: string,
     ticketGroupId: string,
     selectedTicket: Ticket | null,
+    refetchTickets: () => Promise<void> 
 }) => { 
   const [formData, setFormData] = useState<Omit<Ticket, "id" | "completedAt">>({
     title: "",
@@ -162,6 +164,7 @@ export const TicketGenrator = ({
           priority: "medium",
           weeklySchedule: [],
         });
+        await refetchTickets();
       } else {
         toast.error("Failed to create ticket");
       } 
