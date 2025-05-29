@@ -37,6 +37,68 @@ export default function DisplaySystem() {
     })();
   }, [ticketGroupId]);
 
+  const sortTickets = (tickets: Ticket[]) => {
+    const currentTime = new Date();
+    const currentTimestamp = currentTime.getTime();
+
+    return tickets.sort((a, b) => { 
+      const priority = {
+        high: 1,
+        medium: 2,
+        low: 3,
+      };
+
+      if(a.completedAt || b.completedAt) {
+        return 4;
+      }
+
+      const priorityDiff = priority[a.priority] - priority[b.priority];
+ 
+      if (priorityDiff !== 0) {
+        return priorityDiff;
+      }
+ 
+      let timestampA: number | null = null;
+      if (a.dueDate) {
+        timestampA = a.dueDate;
+ 
+        if (a.duetime) {
+          const dueDate = new Date(a.dueDate);
+          const [hours, minutes] = a.duetime.split(":").map(Number);
+          dueDate.setHours(hours ?? 0, minutes, 0, 0);
+          timestampA = dueDate.getTime();
+        }
+      }
+ 
+      let timestampB: number | null = null;
+      if (b.dueDate) {
+        timestampB = b.dueDate;
+ 
+        if (b.duetime) {
+          const dueDate = new Date(b.dueDate);
+          const [hours, minutes] = b.duetime.split(":").map(Number);
+          dueDate.setHours(hours ?? 0, minutes, 0, 0);
+          timestampB = dueDate.getTime();
+        }
+      }
+ 
+      if (timestampA === null && timestampB === null) {
+        return 0; 
+      }
+      if (timestampA === null) {
+        return 1;  
+      }
+      if (timestampB === null) {
+        return -1; 
+      }
+ 
+      const timeDiffA = Math.abs(currentTimestamp - timestampA);
+      const timeDiffB = Math.abs(currentTimestamp - timestampB);
+
+      return timeDiffA - timeDiffB; 
+    });
+  };
+
   return (
     <div className="flex flex-col w-full h-min-screen">
       <div className="flex flex-row justify-between items-center mx-6 my-4"> 
@@ -55,7 +117,7 @@ export default function DisplaySystem() {
         {
           tickets && !(getTicketGroup.isPending || ticketsLoading) ?  
             <div className="flex flex-wrap xs:w-full md:w-[97%] flex-row xs:items-center xs:justify-center lg:justify-normal lg:items-start gap-6">
-              {tickets?.map((ticket) => (
+              {sortTickets(tickets).map((ticket) => (
                 <TicketCardDs key={ticket.id} ticket={ticket} 
                   onClickHandler={async () => {
                     await onCompleteTicket(ticket.id);

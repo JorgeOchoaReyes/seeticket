@@ -13,6 +13,7 @@ import type { Ticket } from "~/types";
 import { api } from "~/utils/api";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import momentz from "moment-timezone";
 
 const daysOfWeek = [
   { id: "monday", label: "Monday" },
@@ -36,12 +37,12 @@ export const TicketGenrator = ({
     ticketGroupId: string,
     selectedTicket: Ticket | null,
     refetchTickets: () => Promise<void> 
-}) => { 
+}) => {  
   const [formData, setFormData] = useState<Omit<Ticket, "id" | "completedAt">>({
     title: "",
     description: "",
     duetime:  "",
-    dueDate: Date.now(),
+    dueDate: momentz().valueOf(),
     repeatingTask: false,  
     priority: "medium",
     weeklySchedule: [],
@@ -174,8 +175,8 @@ export const TicketGenrator = ({
   };
  
   const formatDateForInput = (timestamp: number) => {
-    const date = new Date(timestamp);
-    return date.toISOString().split("T")[0];
+    const dates = momentz(timestamp);  
+    return dates.format("yyyy-MM-DD");
   };
 
   return (
@@ -240,8 +241,8 @@ export const TicketGenrator = ({
                     id="duedate"
                     name="duedate"
                     type="date"
-                    value={formatDateForInput(formData.dueDate ?? Date.now())}
-                    onChange={(e) => setFormData({ ...formData, dueDate: new Date(e.target.value).getTime() })}
+                    value={formatDateForInput(formData.dueDate ?? momentz().valueOf())}
+                    onChange={(e) => setFormData({ ...formData, dueDate: momentz(e.target.value).valueOf() })}
                   />
                 </div>
               </>
