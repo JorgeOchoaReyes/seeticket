@@ -28,12 +28,14 @@ export const TicketGenrator = ({
   triggerClose,
   workspaceId,
   ticketGroupId,
-  selectedTicket
+  selectedTicket,
+  refetchTickets
 }: {
     triggerClose: () => Promise<void>,
     workspaceId: string,
     ticketGroupId: string,
     selectedTicket: Ticket | null,
+    refetchTickets: () => Promise<void> 
 }) => { 
   const [formData, setFormData] = useState<Omit<Ticket, "id" | "completedAt">>({
     title: "",
@@ -162,6 +164,7 @@ export const TicketGenrator = ({
           priority: "medium",
           weeklySchedule: [],
         });
+        await refetchTickets();
       } else {
         toast.error("Failed to create ticket");
       } 
@@ -220,7 +223,17 @@ export const TicketGenrator = ({
             </div>
 
             {
-              !formData.repeatingTask ? (
+              !formData.repeatingTask ? (<>
+                <div className="space-y-2">
+                  <Label htmlFor="duetime">Due Time</Label>
+                  <Input
+                    id="duetime"
+                    name="duetime"
+                    type="time"
+                    value={formData.duetime}
+                    onChange={handleDueTimeChange}
+                  />
+                </div>
                 <div className="space-y-2">
                   <Label htmlFor="duedate">Due Date</Label>
                   <Input
@@ -231,6 +244,7 @@ export const TicketGenrator = ({
                     onChange={(e) => setFormData({ ...formData, dueDate: new Date(e.target.value).getTime() })}
                   />
                 </div>
+              </>
               ) : <>
                 <div className="space-y-2">
                   <Label htmlFor="duetime">Due Time</Label>

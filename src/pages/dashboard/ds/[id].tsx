@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { api } from "~/utils/api";
 import { Loader2 } from "lucide-react";
 import { TicketView } from "~/components/workspace/ticket-view";
@@ -38,7 +38,7 @@ export default function DisplaySystem() {
   }, [ticketGroupId]);
 
   return (
-    <div className="flex flex-col w-full">
+    <div className="flex flex-col w-full h-min-screen">
       <div className="flex flex-row justify-between items-center mx-6 my-4"> 
         <h1 className="text-3xl font-bold">{ticketGroup?.name ?? ""}</h1>
       </div> 

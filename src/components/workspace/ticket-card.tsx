@@ -12,7 +12,7 @@ export const TicketCard = ({
     onClickHandler: () => void;
 }) => {
   return (
-    <Card key={ticket.id} className="min-w-[300px] max-w-[400px] bg-white shadow-sm border rounded-md" >
+    <Card key={ticket.id} className="min-w-[300px] max-w-[400px] w-[320px] bg-white shadow-sm border rounded-md" >
       <CardHeader>
         <div className="flex justify-between items-start">
           <CardTitle className="text-lg">{ticket.title}</CardTitle>
@@ -20,14 +20,26 @@ export const TicketCard = ({
         </div>
         {!ticket.repeatingTask && <CardDescription>Due: {formatDate(ticket.dueDate ?? new Date().getTime())}</CardDescription>}
       </CardHeader>
-      <CardContent>
-        <p className="text-sm line-clamp-3 mb-4">{ticket.description}</p>
+      <CardContent className="max-w-full">
+        <p className="text-sm line-clamp-3 mb-4 flex-wrap">{ticket.description.slice(0,20).trim()}...</p>
         <div className="flex flex-wrap gap-1">
-          {ticket?.weeklySchedule?.map((day) => (
-            <Badge key={day} variant="outline" className="capitalize">
-              {day.slice(0, 3)}
-            </Badge>
-          ))}
+          {ticket?.weeklySchedule
+            ?.sort((a, b) => {
+              const dayOrder = {
+                monday: 0,
+                tuesday: 1,
+                wednesday: 2,
+                thursday: 3,
+                friday: 4,
+                saturday: 5,
+                sunday: 6
+              };
+              return dayOrder[a.toLowerCase() as keyof typeof dayOrder] - dayOrder[b.toLowerCase() as keyof typeof dayOrder];
+            })?.map((day) => (
+              <Badge key={day} variant="outline" className="capitalize">
+                {day.slice(0, 3)}
+              </Badge>
+            ))}
         </div>
       </CardContent>
       <CardFooter>
