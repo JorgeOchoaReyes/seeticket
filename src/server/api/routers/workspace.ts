@@ -319,4 +319,46 @@ export const workspaceRouter = createTRPCRouter({
         ...doc.data()
       })) as Ticket[];
     }),  
+  getCompletedTickets: protectedProcedure
+    .input(z.object({
+      workspaceId: z.string(),
+      ticketGroupId: z.string()
+    }))
+    .query(async ({ ctx, input}) => {
+      const db = ctx.db;
+      const user = ctx.session.user;
+
+      if (!user) {
+        throw new Error("User not found");
+      }
+
+      if(!input.workspaceId || !input.ticketGroupId || input.workspaceId === "" || input.ticketGroupId === "") {
+        throw new Error("Workspace or ticket group id missing.");
+      }
+
+      const existingWorkspace = await db 
+        .collection("workspaces")
+        .doc(input.workspaceId)
+        .get();
+      const workspace = existingWorkspace.data() as Workspace;
+      if (!workspace) {
+        throw new Error("Workspace not found");
+      }
+      if (workspace?.ownerId !== user?.uid) {
+        throw new Error("You are not the owner of this workspace");
+      }
+
+      const tickets = await db 
+        .collection("workspaces")
+        .doc(input.workspaceId)
+        .collection("ticketGroups")
+        .doc(input.ticketGroupId)
+        .collection("ticketHistory")
+        .get();
+
+      return tickets.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Ticket[];
+    })
 });
