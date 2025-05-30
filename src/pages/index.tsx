@@ -40,7 +40,7 @@ export default function Component() {
             <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
               <Sync className="w-4 h-4 text-white transition-transform duration-300 group-hover:rotate-180" />
             </div>
-            <span className="font-bold text-xl transition-colors duration-300 group-hover:text-blue-600">TaskSync</span>
+            <span className="font-bold text-xl transition-colors duration-300 group-hover:text-blue-600">SeeTicket</span>
           </div>
         </Link>
  
@@ -308,7 +308,7 @@ export default function Component() {
                   Built for Real-World Scenarios
                 </h2>
                 <p className="max-w-[900px] text-gray-600 text-lg md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  Whether you{"\'"}re running a restaurant, working in healthcare, or managing personal tasks, TaskSync
+                  Whether you{"\'"}re running a restaurant, working in healthcare, or managing personal tasks, SeeTicket
                   adapts to your workflow.
                 </p>
               </div>
@@ -532,7 +532,7 @@ export default function Component() {
                   Trusted by Professionals
                 </h2>
                 <p className="max-w-[900px] text-gray-600 text-lg md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  From busy restaurants to critical care units, professionals rely on TaskSync for seamless
+                  From busy restaurants to critical care units, professionals rely on SeeTicket for seamless
                   coordination.
                 </p>
               </div>
@@ -542,7 +542,7 @@ export default function Component() {
               {[
                 {
                   rating: 5,
-                  text: "TaskSync transformed our restaurant operations. Servers input orders on their phones, and our kitchen staff see everything instantly on the tablet. Order accuracy improved 40%.",
+                  text: "SeeTicket transformed our restaurant operations. Servers input orders on their phones, and our kitchen staff see everything instantly on the tablet. Order accuracy improved 40%.",
                   author: "Maria Rodriguez",
                   role: "Restaurant Manager, Bella Vista",
                 },
@@ -599,21 +599,19 @@ export default function Component() {
                   Ready to Transform Your Workflow?
                 </h2>
                 <p className="max-w-[600px] text-blue-100 text-lg md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  Join thousands of restaurants, healthcare facilities, and families using TaskSync for seamless
+                  Join others using SeeTicket for seamless
                   coordination.
                 </p>
               </div>
               <div className="w-full max-w-md space-y-3">
-                <form className="flex flex-col sm:flex-row gap-3">
-                  <Input
-                    type="email"
-                    placeholder="Enter your email"
-                    className="flex-1 bg-white/10 border-white/20 text-white placeholder:text-white/70 transition-all duration-300 focus:bg-white/20 focus:scale-105"
-                  />
+                <form className="flex flex-col sm:flex-row gap-3"> 
                   <Button
                     type="submit"
                     variant="secondary"
                     className="transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                    onClick={async () => {
+                      await router.push("/dashboard");
+                    }}
                   >
                     Get Started
                   </Button>
@@ -626,7 +624,7 @@ export default function Component() {
       </main>
  
       <footer className="flex flex-col gap-4 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t bg-white">
-        <p className="text-xs text-gray-600">© 2024 TaskSync. All rights reserved.</p>
+        <p className="text-xs text-gray-600">© 2024 SeeTicket. All rights reserved.</p>
         <nav className="sm:ml-auto flex flex-wrap gap-4 sm:gap-6">
           {["Terms of Service", "Privacy Policy", "HIPAA Compliance", "Contact"].map((link) => (
             <Link
