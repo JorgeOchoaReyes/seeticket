@@ -1,6 +1,6 @@
 import type React from "react";
 import { useState, useEffect } from "react";
-import { ChevronRight, DollarSign, Home, Settings, Menu, X, Loader2 } from "lucide-react";
+import { ChevronRight, DollarSign, Home, Settings, Menu, X, Loader2, ArrowLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/router";
 import { cn } from "../../lib/utils";
@@ -8,6 +8,7 @@ import Head from "next/head";
 import firebase from "../../firebase"; 
 import { useAuthState } from "react-firebase-hooks/auth";
 import type { User } from "firebase/auth";
+import { Button } from "../ui/button";
 
 interface LayoutProps {
   children: React.ReactNode
@@ -45,6 +46,11 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         )
       }>
         {user && <Sidebar user={user} selected={pathname} loading={loading} /> }
+        <Button variant={"outline"} className="sticky left-56 ml-2 top-5" onClick={async () => {
+          router.back();
+        }}> 
+          <ArrowLeft />
+        </Button>
         <div className={cn("flex-1 transition-all bg-[#f2f4f6] lg:ml-0", isMobile ? "mt-16" : "")}>{children}</div>
       </div>
     </>

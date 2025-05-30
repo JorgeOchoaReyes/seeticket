@@ -3,7 +3,7 @@
 import { Button } from "~/components/ui/button";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { Link2, Loader2, Plus, Clock, Eye, EyeOff } from "lucide-react";
+import { Link2, Loader2, Plus, Clock, Eye, EyeOff, LogsIcon } from "lucide-react";
 import { api } from "~/utils/api";
 import type { Ticket, TicketGroup } from "~/types";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "~/components/ui/dialog";
@@ -132,7 +132,13 @@ export default function TicketGroupPage() {
         </div>
 
         <div className="flex space-x-2 flex-row">
-          <QrCodePopup value={`/dashboard/ds/${workspaceId}?tgId=${id}`} />
+          <QrCodePopup value={`/dashboard/ds/${workspaceId}?tgId=${id}`} />    
+          <Button asChild>
+            <Link href={`/dashboard/workspaces/history?wId=${workspaceId}&tgId=${id}`} >
+              <LogsIcon />
+              <span className="xs:hidden md:block"> Ticket History </span>
+            </Link>
+          </Button>
           <Button asChild>
             <Link href={`/dashboard/ds/${workspaceId}?tgId=${id}`} target="_blank" rel="noopener noreferrer">
               <Link2 />
